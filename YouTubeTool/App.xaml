@@ -23,6 +23,19 @@
 				<Setter Property="FontFamily" Value="{DynamicResource MaterialDesignFont}" />
 			</Style>
 
+			<!--  Styles  -->
+			<Style BasedOn="{StaticResource MaterialDesignLinearProgressBar}" TargetType="{x:Type ProgressBar}">
+				<Setter Property="BorderThickness" Value="0" />
+				<Setter Property="Foreground" Value="{DynamicResource SecondaryAccentBrush}" />
+				<Setter Property="Height" Value="2" />
+				<Setter Property="Minimum" Value="0" />
+				<Setter Property="Maximum" Value="1" />
+			</Style>
+
+			<Style BasedOn="{StaticResource MaterialDesignTextBox}" TargetType="{x:Type TextBox}">
+				<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+			</Style>
+
 			<Style TargetType="{x:Type ListBox}" BasedOn="{StaticResource MaterialDesignListBox}">
 				<Setter Property="HorizontalContentAlignment" Value="Stretch" />
 			</Style>

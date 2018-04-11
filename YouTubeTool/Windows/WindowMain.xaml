@@ -58,34 +58,71 @@
 					
 				</ScrollViewer>
 
-				<materialDesign:ColorZone Grid.Row="0"
+				<StackPanel Grid.Row="0">
+					<materialDesign:ColorZone Grid.Row="0"
 										  Mode="PrimaryDark"
 										  Padding="16"
 										  materialDesign:ShadowAssist.ShadowDepth="Depth2">
-					<DockPanel>
-						<materialDesign:PopupBox DockPanel.Dock="Right" Margin="20 0 0 0" PlacementMode="BottomAndAlignRightEdges" StaysOpen="False">
-							<StackPanel MinWidth="200">
-								<TextBlock Margin="15" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="18" TextTrimming="CharacterEllipsis" Text="Bloo"/>
-								<Separator Margin="4,0" />
-								<MenuItem ToolTip="View" Header="One">
-									<MenuItem.Icon>
-										<materialDesign:PackIcon Kind="FormatListChecks" />
-									</MenuItem.Icon>
-								</MenuItem>
-								<Separator />
-								<MenuItem ToolTip="View" Header="Two">
-									<MenuItem.Icon>
-										<materialDesign:PackIcon Kind="BookmarkMusic" />
-									</MenuItem.Icon>
-								</MenuItem>
-							</StackPanel>
-						</materialDesign:PopupBox>
+						<DockPanel>
+							<ToggleButton DockPanel.Dock="Left"  x:Name="MenuToggleButton" Style="{DynamicResource MaterialDesignHamburgerToggleButton}" />
 
-						<StackPanel Orientation="Horizontal" materialDesign:RippleAssist.IsCentered="True">
-							<ToggleButton x:Name="MenuToggleButton" Style="{DynamicResource MaterialDesignHamburgerToggleButton}" />
-						</StackPanel>
-					</DockPanel>
-				</materialDesign:ColorZone>
+							<materialDesign:PopupBox DockPanel.Dock="Right" Margin="0" PlacementMode="BottomAndAlignRightEdges" StaysOpen="False">
+								<StackPanel MinWidth="200">
+									<TextBlock Margin="15" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="18" TextTrimming="CharacterEllipsis" Text="Bloo"/>
+									<Separator Margin="4,0" />
+									<MenuItem ToolTip="View" Header="One">
+										<MenuItem.Icon>
+											<materialDesign:PackIcon Kind="FormatListChecks" />
+										</MenuItem.Icon>
+									</MenuItem>
+									<Separator />
+									<MenuItem ToolTip="View" Header="Two">
+										<MenuItem.Icon>
+											<materialDesign:PackIcon Kind="BookmarkMusic" />
+										</MenuItem.Icon>
+									</MenuItem>
+								</StackPanel>
+							</materialDesign:PopupBox>
+
+							<!--  Query  -->
+							<materialDesign:Card Margin="12 0">
+								<Grid>
+									<Grid.ColumnDefinitions>
+										<ColumnDefinition Width="*" />
+										<ColumnDefinition Width="Auto" />
+									</Grid.ColumnDefinitions>
+
+									<TextBox Grid.Column="0"
+										 x:Name="QueryTextBox"
+										 Margin="6"
+										 materialDesign:HintAssist.Hint="Youtube video URL or ID"
+										 materialDesign:TextFieldAssist.DecorationVisibility="Hidden"
+										 BorderThickness="0"
+										 FontSize="16"
+										 Text="{Binding Query, UpdateSourceTrigger=PropertyChanged}" />
+									<Button Grid.Column="1"
+										Margin="0,6,6,6"
+										Padding="4"
+										Command="{Binding GetDataCommand}"
+										IsDefault="True"
+										Style="{DynamicResource MaterialDesignFlatButton}">
+										<materialDesign:PackIcon Width="24" Height="24" Kind="ArrowRight" />
+									</Button>
+								</Grid>
+							</materialDesign:Card>
+							<!--<materialDesign:ColorZone Mode="Inverted"
+												  Padding="16"
+												  materialDesign:ShadowAssist.ShadowDepth="Depth2">
+							
+						</materialDesign:ColorZone>-->
+							<!--<StackPanel Orientation="Horizontal" materialDesign:RippleAssist.IsCentered="True"></StackPanel>-->
+						</DockPanel>
+					</materialDesign:ColorZone>
+
+					<ProgressBar Background="Transparent" Height="10"
+								 IsIndeterminate="{Binding IsProgressIndeterminate}"
+								 Value="{Binding Progress, Mode=OneWay}" />
+				</StackPanel>
 
 				<materialDesign:ColorZone Grid.Row="2"
 										  Mode="Standard"
