@@ -1,0 +1,104 @@
+﻿<Window x:Class="YouTubeTool.Windows.TestWindow"
+		xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+		xmlns:converters="clr-namespace:YouTubeTool.Utils.Converters"
+		xmlns:viewModels="clr-namespace:YouTubeTool.ViewModels"
+		xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+		Title="{Binding MyTitle}"
+		WindowStartupLocation="CenterScreen"
+		Width="1024" Height="576" MinWidth="1024" MinHeight="576">
+	<Window.DataContext>
+		<viewModels:MainViewModel/>
+	</Window.DataContext>
+	<Window.Resources>
+		<converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConv"/>
+	</Window.Resources>
+
+	<materialDesign:DialogHost Identifier="RootDialog" SnackbarMessageQueue="{Binding ElementName=MainSnackbar, Path=MessageQueue}">
+		<materialDesign:DrawerHost IsLeftDrawerOpen="{Binding ElementName=MenuToggleButton, Path=IsChecked}">
+			<materialDesign:DrawerHost.LeftDrawerContent>
+				<DockPanel MinWidth="230" Background="{StaticResource MaterialDesignCardBackground}">
+					<ToggleButton Style="{StaticResource MaterialDesignHamburgerToggleButton}"
+								  DockPanel.Dock="Top"
+								  HorizontalAlignment="Right" Margin="16"
+								  IsChecked="{Binding ElementName=MenuToggleButton, Path=IsChecked, Mode=TwoWay}" />
+					<ListBox x:Name="AppMenuListBox" ItemsSource="{Binding AppMenu}">
+						<ListBox.ItemTemplate>
+							<DataTemplate DataType="viewModels:HamburgerMenuItem">
+								<Grid>
+									<Grid.ColumnDefinitions>
+										<ColumnDefinition Width="Auto" />
+										<ColumnDefinition />
+									</Grid.ColumnDefinitions>
+
+									<Rectangle Grid.Column="0"
+											   Width="6"
+											   Fill="{DynamicResource SecondaryAccentBrush}"
+											   Visibility="{Binding IsSelected, Converter={StaticResource BoolToVisibilityConv}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListBoxItem}}" />
+									<StackPanel Grid.Column="1" Orientation="Horizontal" Margin="12 10">
+										<materialDesign:PackIcon Kind="{Binding Icon}" Height="30" Width="30" />
+										<TextBlock Text="{Binding Description}" VerticalAlignment="Center" Margin="16 0 0 0" />
+									</StackPanel>
+								</Grid>
+							</DataTemplate>
+						</ListBox.ItemTemplate>
+					</ListBox>
+				</DockPanel>
+			</materialDesign:DrawerHost.LeftDrawerContent>
+
+			<Grid>
+				<Grid.RowDefinitions>
+					<RowDefinition Height="Auto" />
+					<RowDefinition />
+					<RowDefinition Height="Auto" />
+				</Grid.RowDefinitions>
+
+				<ScrollViewer Grid.Row="1">
+					
+				</ScrollViewer>
+
+				<materialDesign:ColorZone Grid.Row="0"
+										  Mode="PrimaryDark"
+										  Padding="16"
+										  materialDesign:ShadowAssist.ShadowDepth="Depth2">
+					<DockPanel>
+						<materialDesign:PopupBox DockPanel.Dock="Right" Margin="20 0 0 0" PlacementMode="BottomAndAlignRightEdges" StaysOpen="False">
+							<StackPanel MinWidth="200">
+								<TextBlock Margin="15" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="18" TextTrimming="CharacterEllipsis" Text="Bloo"/>
+								<Separator Margin="4,0" />
+								<MenuItem ToolTip="View" Header="One">
+									<MenuItem.Icon>
+										<materialDesign:PackIcon Kind="FormatListChecks" />
+									</MenuItem.Icon>
+								</MenuItem>
+								<Separator />
+								<MenuItem ToolTip="View" Header="Two">
+									<MenuItem.Icon>
+										<materialDesign:PackIcon Kind="BookmarkMusic" />
+									</MenuItem.Icon>
+								</MenuItem>
+							</StackPanel>
+						</materialDesign:PopupBox>
+
+						<StackPanel Orientation="Horizontal" materialDesign:RippleAssist.IsCentered="True">
+							<ToggleButton x:Name="MenuToggleButton" Style="{DynamicResource MaterialDesignHamburgerToggleButton}" />
+						</StackPanel>
+					</DockPanel>
+				</materialDesign:ColorZone>
+
+				<materialDesign:ColorZone Grid.Row="2"
+										  Mode="Standard"
+										  Padding="16 8"
+										  materialDesign:ShadowAssist.ShadowDepth="Depth2"
+										  materialDesign:ShadowAssist.ShadowEdges="Top">
+					<DockPanel>
+						<Label DockPanel.Dock="Left" Content="Left" VerticalAlignment="Center" />
+						<Button DockPanel.Dock="Right" Style="{StaticResource MaterialDesignFlatAccentButton}" Content="Right" HorizontalAlignment="Right" />
+					</DockPanel>
+				</materialDesign:ColorZone>
+
+				<materialDesign:Snackbar Grid.Row="2" MessageQueue="{materialDesign:MessageQueue}" x:Name="MainSnackbar" />
+			</Grid>
+		</materialDesign:DrawerHost>
+	</materialDesign:DialogHost>
+</Window>
