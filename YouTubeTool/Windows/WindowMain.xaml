@@ -54,18 +54,25 @@
 					<RowDefinition Height="Auto" />
 				</Grid.RowDefinitions>
 
-				<ScrollViewer Grid.Row="1">
-					
+				<!--  Video info  -->
+				<ScrollViewer Grid.Row="1"
+							  HorizontalScrollBarVisibility="Disabled"
+							  VerticalScrollBarVisibility="Auto">
+					<StackPanel Orientation="Vertical">
+						<Label Content="{Binding Playlist.Videos[0].Id}" />
+					</StackPanel>
 				</ScrollViewer>
 
-				<StackPanel Grid.Row="0">
-					<materialDesign:ColorZone Grid.Row="0"
+				<materialDesign:ColorZone Grid.Row="0"
 										  Mode="PrimaryDark"
-										  Padding="16"
+										  Padding="0"
 										  materialDesign:ShadowAssist.ShadowDepth="Depth2">
-						<DockPanel>
+					<StackPanel>
+						<DockPanel Margin="16">
+							<!-- HamburgerMenu -->
 							<ToggleButton DockPanel.Dock="Left"  x:Name="MenuToggleButton" Style="{DynamicResource MaterialDesignHamburgerToggleButton}" />
 
+							<!-- Popup box -->
 							<materialDesign:PopupBox DockPanel.Dock="Right" Margin="0" PlacementMode="BottomAndAlignRightEdges" StaysOpen="False">
 								<StackPanel MinWidth="200">
 									<TextBlock Margin="15" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="18" TextTrimming="CharacterEllipsis" Text="Bloo"/>
@@ -110,19 +117,13 @@
 									</Button>
 								</Grid>
 							</materialDesign:Card>
-							<!--<materialDesign:ColorZone Mode="Inverted"
-												  Padding="16"
-												  materialDesign:ShadowAssist.ShadowDepth="Depth2">
-							
-						</materialDesign:ColorZone>-->
-							<!--<StackPanel Orientation="Horizontal" materialDesign:RippleAssist.IsCentered="True"></StackPanel>-->
 						</DockPanel>
-					</materialDesign:ColorZone>
 
-					<ProgressBar Background="Transparent" Height="10"
+						<ProgressBar Background="Transparent" Height="10"
 								 IsIndeterminate="{Binding IsProgressIndeterminate}"
 								 Value="{Binding Progress, Mode=OneWay}" />
-				</StackPanel>
+					</StackPanel>
+				</materialDesign:ColorZone>
 
 				<materialDesign:ColorZone Grid.Row="2"
 										  Mode="Standard"
@@ -130,7 +131,7 @@
 										  materialDesign:ShadowAssist.ShadowDepth="Depth2"
 										  materialDesign:ShadowAssist.ShadowEdges="Top">
 					<DockPanel>
-						<Label DockPanel.Dock="Left" Content="Left" VerticalAlignment="Center" />
+						<Label DockPanel.Dock="Left" Content="{Binding Status}" VerticalAlignment="Center" />
 						<Button DockPanel.Dock="Right" Style="{StaticResource MaterialDesignFlatAccentButton}" Content="Right" HorizontalAlignment="Right" />
 					</DockPanel>
 				</materialDesign:ColorZone>
