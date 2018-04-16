@@ -105,6 +105,9 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Core\AppGlobal.cs" />
+    <Compile Include="Core\AppPaths.cs" />
+    <Compile Include="Core\AppSettings.cs" />
     <Compile Include="Utils\Converters\BoolToVisibilityConverter.cs" />
     <Compile Include="ViewModels\HamburgerMenuItem.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
