@@ -91,10 +91,10 @@
 												<StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right">
 													<Button Style="{StaticResource MaterialDesignFlatAccentButton}"
 															Content="Song"
-															Command="{Binding DownloadSongCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}" CommandParameter="{Binding Id}" />
+															Command="{Binding Path=DataContext.DownloadSongCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ItemsControl}}" CommandParameter="{Binding Id}" />
 													<Button Style="{StaticResource MaterialDesignFlatAccentButton}"
 															Content="Video"
-															Command="{Binding TestCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"
+															Command="{Binding Path=DataContext.TestCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ItemsControl}}"
 															Margin="8 0 0 0" />
 												</StackPanel>
 											</Grid>

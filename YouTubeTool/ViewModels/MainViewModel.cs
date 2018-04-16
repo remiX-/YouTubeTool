@@ -118,8 +118,8 @@ namespace YouTubeTool.ViewModels
 
 		// Commands
 		public DelegateCommand GetDataCommand { get; }
+		public DelegateCommand<string> DownloadVideoCommand { get; }
 		public DelegateCommand<string> DownloadSongCommand { get; }
-		public DelegateCommand TestCommand { get; }
 		//public RelayCommand<MediaStreamInfo> DownloadMediaStreamCommand { get; }
 		//public RelayCommand<ClosedCaptionTrackInfo> DownloadClosedCaptionTrackCommand { get; }
 
@@ -145,8 +145,8 @@ namespace YouTubeTool.ViewModels
 
 			// Commands
 			GetDataCommand = new DelegateCommand(GetData, () => !IsBusy && Query.IsNotBlank());
+			DownloadVideoCommand = new DelegateCommand<string>(o => DownloadVideo(o), (o) => !IsBusy);
 			DownloadSongCommand = new DelegateCommand<string>(o => DownloadSong(o), (o) => !IsBusy);
-			TestCommand = new DelegateCommand(Test);
 		}
 
 		private async void GetData()
@@ -250,12 +250,12 @@ namespace YouTubeTool.ViewModels
 			throw new Exception("No applicable media streams found for this video");
 		}
 
-		private void DownloadSong(string o)
+		private void DownloadVideo(string o)
 		{
 
 		}
 
-		private void Test()
+		private void DownloadSong(string o)
 		{
 
 		}
