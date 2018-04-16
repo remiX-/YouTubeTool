@@ -118,6 +118,8 @@ namespace YouTubeTool.ViewModels
 
 		// Commands
 		public DelegateCommand GetDataCommand { get; }
+		public DelegateCommand<string> DownloadSongCommand { get; }
+		public DelegateCommand TestCommand { get; }
 		//public RelayCommand<MediaStreamInfo> DownloadMediaStreamCommand { get; }
 		//public RelayCommand<ClosedCaptionTrackInfo> DownloadClosedCaptionTrackCommand { get; }
 
@@ -143,6 +145,8 @@ namespace YouTubeTool.ViewModels
 
 			// Commands
 			GetDataCommand = new DelegateCommand(GetData, () => !IsBusy && Query.IsNotBlank());
+			DownloadSongCommand = new DelegateCommand<string>(o => DownloadSong(o), (o) => !IsBusy);
+			TestCommand = new DelegateCommand(Test);
 		}
 
 		private async void GetData()
@@ -169,7 +173,9 @@ namespace YouTubeTool.ViewModels
 			//Video = await _client.GetVideoAsync(videoId);
 			//Channel = await _client.GetVideoAuthorChannelAsync(videoId);
 			//MediaStreamInfos = await _client.GetVideoMediaStreamInfosAsync(videoId);
-			//ClosedCaptionTrackInfos = await _client.GetVideoClosedCaptionTrackInfosAsync(videoId);
+			//ClosedCaptionTrackInfos = await _client.GetVideoClosedCaptionTrackInfosAsync(videoId);\
+
+			Status = "Ready";
 
 			IsBusy = false;
 			IsProgressIndeterminate = false;
@@ -188,8 +194,6 @@ namespace YouTubeTool.ViewModels
 				await DownloadAndConvertVideoAsync(video.Id);
 				Console.WriteLine();
 			}
-
-			Status = "Ready";
 		}
 
 		private async Task DownloadAndConvertVideoAsync(string id)
@@ -244,6 +248,16 @@ namespace YouTubeTool.ViewModels
 			if (set.Muxed.Any())
 				return set.Muxed.WithHighestVideoQuality();
 			throw new Exception("No applicable media streams found for this video");
+		}
+
+		private void DownloadSong(string o)
+		{
+
+		}
+
+		private void Test()
+		{
+
 		}
 	}
 }

@@ -6,7 +6,7 @@
 		xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
 		Title="{Binding MyTitle}"
 		Style="{StaticResource AppWindow}"
-		WindowStartupLocation="CenterScreen"
+		Loaded="Window_Loaded" Closed="Window_Closed"
 		Width="1024" Height="576" MinWidth="1024" MinHeight="576">
 	<Window.DataContext>
 		<viewModels:MainViewModel/>
@@ -59,7 +59,50 @@
 							  HorizontalScrollBarVisibility="Disabled"
 							  VerticalScrollBarVisibility="Auto">
 					<StackPanel Orientation="Vertical">
-						<Label Content="{Binding Playlist.Videos[0].Id}" />
+						<ItemsControl ItemsSource="{Binding Playlist.Videos}"
+									  Margin="16 0 16 16"
+									  VerticalAlignment="Top">
+							<ItemsControl.ItemTemplate>
+								<DataTemplate>
+									<materialDesign:Card Margin="0 8 0 0">
+										<Expander Background="{x:Null}">
+											<Expander.Header>
+												<StackPanel Orientation="Horizontal">
+													<materialDesign:PackIcon Width="18"
+																			 Height="18"
+																			 VerticalAlignment="Center"
+																			 Kind="CommentTextOutline" />
+													<TextBlock Margin="6,0,0,0"
+															   FontSize="15"
+															   Text="{Binding Title}" />
+												</StackPanel>
+											</Expander.Header>
+
+											<Grid Margin="16 8">
+												<Grid.RowDefinitions>
+													<RowDefinition />
+													<RowDefinition />
+												</Grid.RowDefinitions>
+
+												<TextBlock Grid.Row="0"
+														   Text="{Binding Description}"
+														   TextWrapping="Wrap" />
+												
+												<StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right">
+													<Button Style="{StaticResource MaterialDesignFlatAccentButton}"
+															Content="Song"
+															Command="{Binding DownloadSongCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}" CommandParameter="{Binding Id}" />
+													<Button Style="{StaticResource MaterialDesignFlatAccentButton}"
+															Content="Video"
+															Command="{Binding TestCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"
+															Margin="8 0 0 0" />
+												</StackPanel>
+											</Grid>
+										</Expander>
+									</materialDesign:Card>
+								</DataTemplate>
+							</ItemsControl.ItemTemplate>
+						</ItemsControl>
 					</StackPanel>
 				</ScrollViewer>
 
@@ -101,14 +144,14 @@
 
 									<TextBox Grid.Column="0"
 										 x:Name="QueryTextBox"
-										 Margin="6"
+										 Margin="10 6 0 6"
 										 materialDesign:HintAssist.Hint="Youtube video URL or ID"
 										 materialDesign:TextFieldAssist.DecorationVisibility="Hidden"
 										 BorderThickness="0"
 										 FontSize="16"
 										 Text="{Binding Query, UpdateSourceTrigger=PropertyChanged}" />
 									<Button Grid.Column="1"
-										Margin="0,6,6,6"
+										Margin=" 6"
 										Padding="4"
 										Command="{Binding GetDataCommand}"
 										IsDefault="True"
