@@ -57,7 +57,6 @@ namespace YouTubeTool.ViewModels
 			{
 				SetProperty(ref _isBusy, value);
 				GetDataCommand.RaiseCanExecuteChanged();
-				//DownloadMediaStreamCommand.RaiseCanExecuteChanged();
 			}
 		}
 
@@ -87,7 +86,7 @@ namespace YouTubeTool.ViewModels
 			private set
 			{
 				SetProperty(ref _video, value);
-				//RaisePropertyChanged(() => IsDataAvailable);
+				RaisePropertyChanged("IsDataAvailable");
 			}
 		}
 
@@ -97,7 +96,7 @@ namespace YouTubeTool.ViewModels
 			private set
 			{
 				SetProperty(ref _channel, value);
-				//RaisePropertyChanged(() => IsDataAvailable);
+				RaisePropertyChanged("IsDataAvailable");
 			}
 		}
 
@@ -118,10 +117,8 @@ namespace YouTubeTool.ViewModels
 
 		// Commands
 		public DelegateCommand GetDataCommand { get; }
-		public DelegateCommand<string> DownloadVideoCommand { get; }
 		public DelegateCommand<string> DownloadSongCommand { get; }
-		//public RelayCommand<MediaStreamInfo> DownloadMediaStreamCommand { get; }
-		//public RelayCommand<ClosedCaptionTrackInfo> DownloadClosedCaptionTrackCommand { get; }
+		public DelegateCommand<string> DownloadVideoCommand { get; }
 
 		private static readonly string TempDirectoryPath = Path.Combine(Directory.GetCurrentDirectory(), "Temp");
 		private static readonly string OutputDirectoryPath = Path.Combine(Directory.GetCurrentDirectory(), "Output");
@@ -145,8 +142,8 @@ namespace YouTubeTool.ViewModels
 
 			// Commands
 			GetDataCommand = new DelegateCommand(GetData, () => !IsBusy && Query.IsNotBlank());
-			DownloadVideoCommand = new DelegateCommand<string>(o => DownloadVideo(o), (o) => !IsBusy);
 			DownloadSongCommand = new DelegateCommand<string>(o => DownloadSong(o), (o) => !IsBusy);
+			DownloadVideoCommand = new DelegateCommand<string>(o => DownloadVideo(o), (o) => !IsBusy);
 		}
 
 		private async void GetData()
@@ -181,7 +178,8 @@ namespace YouTubeTool.ViewModels
 			IsProgressIndeterminate = false;
 		}
 
-		private async Task DownloadAndConvertPlaylistAsync(string id)
+		#region YouTube Dling
+		private async Task DownloadSongPlaylistAsync(string id)
 		{
 			// Get playlist info
 			var playlist = await _client.GetPlaylistAsync(id);
@@ -191,18 +189,24 @@ namespace YouTubeTool.ViewModels
 			Console.WriteLine();
 			foreach (var video in playlist.Videos)
 			{
-				await DownloadAndConvertVideoAsync(video.Id);
+				await DownloadSongAsync(video.Id);
 				Console.WriteLine();
 			}
 		}
 
-		private async Task DownloadAndConvertVideoAsync(string id)
+		private async Task DownloadSongAsync(string id)
 		{
 			Status = $"Working on video [{id}]...";
 
 			// Get video info
 			var video = await _client.GetVideoAsync(id);
-			var set = await _client.GetVideoMediaStreamInfosAsync(id);
+
+			await DownloadSongAsync(video);
+		}
+
+		private async Task DownloadSongAsync(Video video)
+		{
+			var set = await _client.GetVideoMediaStreamInfosAsync(video.Id);
 			var cleanTitle = video.Title.Replace(Path.GetInvalidFileNameChars(), '_');
 			Status = $"{video.Title}";
 
@@ -238,7 +242,51 @@ namespace YouTubeTool.ViewModels
 				meta.Save();
 			}
 
-			Status = $"Downloaded and converted video [{id}] to [{outputFilePath}]";
+			Status = $"Downloaded and converted video [{video.Id}] to [{outputFilePath}]";
+		}
+
+		private async Task DownloadVideoAsync(string id)
+		{
+			Status = $"Working on video [{id}]...";
+
+			// Get video info
+			var video = await _client.GetVideoAsync(id);
+
+			await DownloadVideoAsync(video);
+		}
+
+		private async Task DownloadVideoAsync(Video video)
+		{
+			var cleanTitle = video.Title.Replace(Path.GetInvalidFileNameChars(), '_');
+			Status = $"{video.Title}";
+
+			// Get best streams
+			var streamInfoSet = await _client.GetVideoMediaStreamInfosAsync(video.Id);
+			var videoStreamInfo = streamInfoSet.Video.WithHighestVideoQuality();
+			var audioStreamInfo = streamInfoSet.Audio.WithHighestBitrate();
+
+			// Download streams
+			Status = "Downloading...";
+			Directory.CreateDirectory(TempDirectoryPath);
+			var videoStreamFileExt = videoStreamInfo.Container.GetFileExtension();
+			var videoStreamFilePath = Path.Combine(TempDirectoryPath, $"VID-{Guid.NewGuid()}.{videoStreamFileExt}");
+			await _client.DownloadMediaStreamAsync(videoStreamInfo, videoStreamFilePath);
+			var audioStreamFileExt = audioStreamInfo.Container.GetFileExtension();
+			var audioStreamFilePath = Path.Combine(TempDirectoryPath, $"AUD-{Guid.NewGuid()}.{audioStreamFileExt}");
+			await _client.DownloadMediaStreamAsync(audioStreamInfo, audioStreamFilePath);
+
+			// Mux streams
+			Status = "Combining...";
+			Directory.CreateDirectory(OutputDirectoryPath);
+			var outputFilePath = Path.Combine(OutputDirectoryPath, $"{cleanTitle}.mp4");
+			await FfmpegCli.ExecuteAsync($"-i \"{videoStreamFilePath}\" -i \"{audioStreamFilePath}\" -shortest \"{outputFilePath}\" -y");
+
+			// Delete temp files
+			Status = "Deleting temp files...";
+			File.Delete(videoStreamFilePath);
+			File.Delete(audioStreamFilePath);
+
+			Status = $"Downloaded video [{video.Id}] to [{outputFilePath}]";
 		}
 
 		private static MediaStreamInfo GetBestAudioStreamInfo(MediaStreamInfoSet set)
@@ -249,15 +297,24 @@ namespace YouTubeTool.ViewModels
 				return set.Muxed.WithHighestVideoQuality();
 			throw new Exception("No applicable media streams found for this video");
 		}
+		#endregion
 
-		private void DownloadVideo(string o)
+		#region Commands
+		private async void DownloadSong(string o)
 		{
+			Video video = Playlist.Videos.First(v => v.Id == o);
+			await DownloadSongAsync(video.Id);
 
+			Status = "Ready";
 		}
 
-		private void DownloadSong(string o)
+		private async void DownloadVideo(string o)
 		{
+			Video video = Playlist.Videos.First(v => v.Id == o);
+			await DownloadVideoAsync(video.Id);
 
+			Status = "Ready";
 		}
+		#endregion
 	}
 }
