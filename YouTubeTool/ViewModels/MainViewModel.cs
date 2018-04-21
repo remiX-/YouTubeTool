@@ -22,6 +22,9 @@ namespace YouTubeTool.ViewModels
 
 		private readonly Cli FfmpegCli = new Cli("ffmpeg.exe");
 
+		private static readonly string TempDirectoryPath = Path.Combine(Directory.GetCurrentDirectory(), "Temp");
+		private static readonly string OutputDirectoryPath = Path.Combine(Directory.GetCurrentDirectory(), "Output");
+
 		#region Fields
 		private string myTitle;
 		private string status;
@@ -31,8 +34,6 @@ namespace YouTubeTool.ViewModels
 		private Playlist _playlist;
 		private Video _video;
 		private Channel _channel;
-		//private MediaStreamInfoSet _mediaStreamInfos;
-		//private IReadOnlyList<ClosedCaptionTrackInfo> _closedCaptionTrackInfos;
 		private double _progress;
 		private bool _isProgressIndeterminate;
 		#endregion
@@ -115,13 +116,11 @@ namespace YouTubeTool.ViewModels
 		}
 		#endregion
 
-		// Commands
+		#region Commands
 		public DelegateCommand GetDataCommand { get; }
 		public DelegateCommand<string> DownloadSongCommand { get; }
 		public DelegateCommand<string> DownloadVideoCommand { get; }
-
-		private static readonly string TempDirectoryPath = Path.Combine(Directory.GetCurrentDirectory(), "Temp");
-		private static readonly string OutputDirectoryPath = Path.Combine(Directory.GetCurrentDirectory(), "Output");
+		#endregion
 		#endregion
 
 		public MainViewModel()
@@ -178,7 +177,7 @@ namespace YouTubeTool.ViewModels
 			IsProgressIndeterminate = false;
 		}
 
-		#region YouTube Dling
+		#region YouTube Song DL
 		private async Task DownloadSongPlaylistAsync(string id)
 		{
 			// Get playlist info
@@ -245,6 +244,17 @@ namespace YouTubeTool.ViewModels
 			Status = $"Downloaded and converted video [{video.Id}] to [{outputFilePath}]";
 		}
 
+		private static MediaStreamInfo GetBestAudioStreamInfo(MediaStreamInfoSet set)
+		{
+			if (set.Audio.Any())
+				return set.Audio.WithHighestBitrate();
+			if (set.Muxed.Any())
+				return set.Muxed.WithHighestVideoQuality();
+			throw new Exception("No applicable media streams found for this video");
+		}
+		#endregion
+
+		#region YouTube Video DL
 		private async Task DownloadVideoAsync(string id)
 		{
 			Status = $"Working on video [{id}]...";
@@ -287,15 +297,6 @@ namespace YouTubeTool.ViewModels
 			File.Delete(audioStreamFilePath);
 
 			Status = $"Downloaded video [{video.Id}] to [{outputFilePath}]";
-		}
-
-		private static MediaStreamInfo GetBestAudioStreamInfo(MediaStreamInfoSet set)
-		{
-			if (set.Audio.Any())
-				return set.Audio.WithHighestBitrate();
-			if (set.Muxed.Any())
-				return set.Muxed.WithHighestVideoQuality();
-			throw new Exception("No applicable media streams found for this video");
 		}
 		#endregion
 
