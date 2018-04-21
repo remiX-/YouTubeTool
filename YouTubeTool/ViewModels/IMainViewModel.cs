@@ -1,15 +1,9 @@
-﻿using Prism.Commands;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using GalaSoft.MvvmLight.CommandWpf;
 using YoutubeExplode.Models;
-using YoutubeExplode.Models.MediaStreams;
 
 namespace YouTubeTool.ViewModels
 {
-	internal class IMainViewModel
+	public interface IMainViewModel
 	{
 		bool IsBusy { get; }
 		string Query { get; set; }
@@ -20,8 +14,10 @@ namespace YouTubeTool.ViewModels
 		double Progress { get; }
 		bool IsProgressIndeterminate { get; }
 
-		DelegateCommand GetDataCommand { get; }
-		DelegateCommand<string> DownloadSongCommand { get; }
-		DelegateCommand<string> DownloadVideoCommand { get; }
+		RelayCommand GetDataCommand { get; }
+		RelayCommand<string> DownloadSongCommand { get; }
+		RelayCommand<string> DownloadVideoCommand { get; }
+
+		RelayCommand ViewLoadedCommand { get; }
 	}
 }

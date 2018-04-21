@@ -1,9 +1,9 @@
-﻿using MaterialDesignThemes.Wpf;
-using Prism.Mvvm;
+﻿using GalaSoft.MvvmLight;
+using MaterialDesignThemes.Wpf;
 
 namespace YouTubeTool.ViewModels
 {
-	public class HamburgerMenuItem : BindableBase
+	public class HamburgerMenuItem : ViewModelBase
 	{
 		private string id;
 		private string description;
@@ -14,26 +14,26 @@ namespace YouTubeTool.ViewModels
 		public string Id
 		{
 			get => id;
-			set => SetProperty(ref id, value);
+			set => Set(ref id, value);
 		}
 
 		public string Description
 		{
 			get => description;
-			set => SetProperty(ref description, value);
+			set => Set(ref description, value);
 		}
 
 		public PackIconKind Icon
 		{
 			get => icon;
-			set => SetProperty(ref icon, value);
+			set => Set(ref icon, value);
 		}
 
 
 		public object Content
 		{
 			get => content;
-			set => SetProperty(ref content, value);
+			set => Set(ref content, value);
 		}
 
 		public HamburgerMenuItem(string id, string description, PackIconKind icon)

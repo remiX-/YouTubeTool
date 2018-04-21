@@ -14,7 +14,7 @@ namespace YouTubeTool
 
 		}
 
-		private void Application_Startup(object sender, StartupEventArgs e)
+		private void App_OnStartup(object sender, StartupEventArgs e)
 		{
 			AppMutex = new Mutex(true, "YouTubeTool", out bool aIsNewInstance);
 			if (!aIsNewInstance)
@@ -31,6 +31,13 @@ namespace YouTubeTool
 				AppGlobal.Settings = AppSettings.Read();
 			else
 				AppGlobal.Settings = new AppSettings(true);
+
+			Locator.Init();
+		}
+
+		private void App_OnExit(object sender, ExitEventArgs e)
+		{
+			Locator.Cleanup();
 		}
 	}
 }

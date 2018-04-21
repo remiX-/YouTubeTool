@@ -1,14 +1,16 @@
-﻿<Application x:Class="YouTubeTool.App"
-             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-			 Startup="Application_Startup"
-             StartupUri="Windows/WindowMain.xaml">
+<Application x:Class="YouTubeTool.App"
+			 xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+			 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+			 xmlns:core="clr-namespace:YouTubeTool.Core"
+			 xmlns:converters="clr-namespace:YouTubeTool.Utils.Converters"
+			 Startup="App_OnStartup" Exit="App_OnExit"
+			 StartupUri="Windows/WindowMain.xaml">
 	<Application.Resources>
 		<ResourceDictionary>
 			<ResourceDictionary.MergedDictionaries>
 				<ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Dark.xaml" />
 				<ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Defaults.xaml" />
-				
+
 				<ResourceDictionary Source="pack://application:,,,/MaterialDesignColors;component/Themes/Recommended/Primary/MaterialDesignColor.BlueGrey.xaml" />
 				<ResourceDictionary Source="pack://application:,,,/MaterialDesignColors;component/Themes/Recommended/Accent/MaterialDesignColor.Green.xaml" />
 			</ResourceDictionary.MergedDictionaries>
@@ -25,25 +27,28 @@
 			</Style>
 
 			<!--  Styles  -->
-			<Style BasedOn="{StaticResource MaterialDesignLinearProgressBar}" TargetType="{x:Type ProgressBar}">
+			<Style TargetType="{x:Type ProgressBar}" BasedOn="{StaticResource MaterialDesignLinearProgressBar}">
 				<Setter Property="BorderThickness" Value="0" />
 				<Setter Property="Foreground" Value="{DynamicResource SecondaryAccentBrush}" />
 				<Setter Property="Height" Value="2" />
 				<Setter Property="Minimum" Value="0" />
 				<Setter Property="Maximum" Value="1" />
 			</Style>
-
-			<Style BasedOn="{StaticResource MaterialDesignTextBox}" TargetType="{x:Type TextBox}">
+			<Style TargetType="{x:Type TextBox}" BasedOn="{StaticResource MaterialDesignTextBox}">
 				<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
 			</Style>
-
 			<Style TargetType="{x:Type ListBox}" BasedOn="{StaticResource MaterialDesignListBox}">
 				<Setter Property="HorizontalContentAlignment" Value="Stretch" />
 			</Style>
-
 			<Style TargetType="{x:Type ListBoxItem}" BasedOn="{StaticResource MaterialDesignListBoxItem}">
 				<Setter Property="Padding" Value="0" />
 			</Style>
+
+			<!--  Converters  -->
+			<converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+
+			<!--  Locator  -->
+			<core:Locator x:Key="Locator" />
 		</ResourceDictionary>
 	</Application.Resources>
 </Application>
