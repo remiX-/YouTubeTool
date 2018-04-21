@@ -1,20 +1,20 @@
 ﻿<Window x:Class="YouTubeTool.Windows.WindowMain"
 		xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-		xmlns:converters="clr-namespace:YouTubeTool.Utils.Converters"
-		xmlns:viewModels="clr-namespace:YouTubeTool.ViewModels"
 		xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+		xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+		xmlns:viewModels="clr-namespace:YouTubeTool.ViewModels"
+		DataContext="{Binding MainViewModel, Source={StaticResource Locator}}"
 		Title="{Binding MyTitle}"
 		Style="{StaticResource AppWindow}"
 		Icon="/YouTubeTool;component/favicon.ico"
 		Loaded="Window_Loaded" Closed="Window_Closed"
 		Width="1024" Height="576" MinWidth="1024" MinHeight="576">
-	<Window.DataContext>
-		<viewModels:MainViewModel/>
-	</Window.DataContext>
-	<Window.Resources>
-		<converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConv"/>
-	</Window.Resources>
+	<i:Interaction.Triggers>
+		<i:EventTrigger EventName="Loaded">
+			<i:InvokeCommandAction Command="{Binding ViewLoadedCommand}" />
+		</i:EventTrigger>
+	</i:Interaction.Triggers>
 
 	<materialDesign:DialogHost Identifier="RootDialog" SnackbarMessageQueue="{Binding ElementName=MainSnackbar, Path=MessageQueue}">
 		<materialDesign:DrawerHost IsLeftDrawerOpen="{Binding ElementName=MenuToggleButton, Path=IsChecked}">
@@ -36,7 +36,7 @@
 									<Rectangle Grid.Column="0"
 											   Width="6"
 											   Fill="{DynamicResource SecondaryAccentBrush}"
-											   Visibility="{Binding IsSelected, Converter={StaticResource BoolToVisibilityConv}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListBoxItem}}" />
+											   Visibility="{Binding IsSelected, Converter={StaticResource BoolToVisibilityConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListBoxItem}}" />
 									<StackPanel Grid.Column="1" Orientation="Horizontal" Margin="12 10">
 										<materialDesign:PackIcon Kind="{Binding Icon}" Height="30" Width="30" />
 										<TextBlock Text="{Binding Description}" VerticalAlignment="Center" Margin="16 0 0 0" />
@@ -165,24 +165,21 @@
 							</materialDesign:Card>
 						</DockPanel>
 
-						<ProgressBar Background="Transparent" Height="10"
+						<ProgressBar Background="Transparent" Height="6"
 								 IsIndeterminate="{Binding IsProgressIndeterminate}"
 								 Value="{Binding Progress, Mode=OneWay}" />
 					</StackPanel>
 				</materialDesign:ColorZone>
 
-				<materialDesign:ColorZone Grid.Row="2"
-										  Mode="Standard"
-										  Padding="16 8"
-										  materialDesign:ShadowAssist.ShadowDepth="Depth2"
-										  materialDesign:ShadowAssist.ShadowEdges="Top">
+				<materialDesign:Card Grid.Row="2"
+									Padding="16 8">
 					<DockPanel>
 						<Label DockPanel.Dock="Left" Content="{Binding Status}" VerticalAlignment="Center" />
 						<Button DockPanel.Dock="Right" Style="{StaticResource MaterialDesignFlatAccentButton}" Content="Right" HorizontalAlignment="Right" />
 					</DockPanel>
-				</materialDesign:ColorZone>
+				</materialDesign:Card>
 
-				<materialDesign:Snackbar Grid.Row="2" MessageQueue="{materialDesign:MessageQueue}" x:Name="MainSnackbar" />
+				<materialDesign:Snackbar Grid.Row="2" x:Name="MainSnackbar" />
 			</Grid>
 		</materialDesign:DrawerHost>
 	</materialDesign:DialogHost>

@@ -1,24 +1,29 @@
 ﻿using CliWrap;
+using GalaSoft.MvvmLight;
+using GalaSoft.MvvmLight.CommandWpf;
 using MaterialDesignThemes.Wpf;
-using Prism.Commands;
-using Prism.Mvvm;
 using System;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Windows;
 using Tyrrrz.Extensions;
 using YoutubeExplode;
 using YoutubeExplode.Models;
 using YoutubeExplode.Models.MediaStreams;
+using YouTubeTool.Services;
+using YouTubeTool.Utils.Messages;
 
 namespace YouTubeTool.ViewModels
 {
-	internal class MainViewModel : BindableBase
+	internal class MainViewModel : ViewModelBase, IMainViewModel
 	{
 		#region Variables
 		public HamburgerMenuItem[] AppMenu { get; }
 		private readonly YoutubeClient _client;
+
+		private readonly IUpdateService _updateService;
 
 		private readonly Cli FfmpegCli = new Cli("ffmpeg.exe");
 
@@ -42,13 +47,17 @@ namespace YouTubeTool.ViewModels
 		public string MyTitle
 		{
 			get => myTitle;
-			set => SetProperty(ref myTitle, value);
+			set => Set(ref myTitle, value);
 		}
 
 		public string Status
 		{
 			get => status;
-			set { SetProperty(ref status, value); Console.WriteLine(status); }
+			set
+			{
+				Set(ref status, value);
+				Console.WriteLine(status);
+			}
 		}
 
 		public bool IsBusy
@@ -56,7 +65,7 @@ namespace YouTubeTool.ViewModels
 			get => _isBusy;
 			private set
 			{
-				SetProperty(ref _isBusy, value);
+				Set(ref _isBusy, value);
 				GetDataCommand.RaiseCanExecuteChanged();
 			}
 		}
@@ -66,7 +75,7 @@ namespace YouTubeTool.ViewModels
 			get => _query;
 			set
 			{
-				SetProperty(ref _query, value);
+				Set(ref _query, value);
 				GetDataCommand.RaiseCanExecuteChanged();
 			}
 		}
@@ -76,7 +85,7 @@ namespace YouTubeTool.ViewModels
 			get => _playlist;
 			private set
 			{
-				SetProperty(ref _playlist, value);
+				Set(ref _playlist, value);
 				RaisePropertyChanged("IsDataAvailable");
 			}
 		}
@@ -86,7 +95,7 @@ namespace YouTubeTool.ViewModels
 			get => _video;
 			private set
 			{
-				SetProperty(ref _video, value);
+				Set(ref _video, value);
 				RaisePropertyChanged("IsDataAvailable");
 			}
 		}
@@ -96,7 +105,7 @@ namespace YouTubeTool.ViewModels
 			get => _channel;
 			private set
 			{
-				SetProperty(ref _channel, value);
+				Set(ref _channel, value);
 				RaisePropertyChanged("IsDataAvailable");
 			}
 		}
@@ -106,26 +115,31 @@ namespace YouTubeTool.ViewModels
 		public double Progress
 		{
 			get => _progress;
-			private set => SetProperty(ref _progress, value);
+			private set => Set(ref _progress, value);
 		}
 
 		public bool IsProgressIndeterminate
 		{
 			get => _isProgressIndeterminate;
-			private set => SetProperty(ref _isProgressIndeterminate, value);
+			private set => Set(ref _isProgressIndeterminate, value);
 		}
 		#endregion
 
 		#region Commands
-		public DelegateCommand GetDataCommand { get; }
-		public DelegateCommand<string> DownloadSongCommand { get; }
-		public DelegateCommand<string> DownloadVideoCommand { get; }
+		public RelayCommand GetDataCommand { get; }
+		public RelayCommand<string> DownloadSongCommand { get; }
+		public RelayCommand<string> DownloadVideoCommand { get; }
+
+		public RelayCommand ViewLoadedCommand { get; }
+		public RelayCommand ViewClosedCommand { get; }
 		#endregion
 		#endregion
 
 		public MainViewModel()
 		{
-			MyTitle = "YouTube Toolerino";
+			_updateService = new UpdateService();
+
+			MyTitle = "YouTube";
 			Status = "Ready";
 
 			AppMenu = new[]
@@ -140,9 +154,15 @@ namespace YouTubeTool.ViewModels
 			_client = new YoutubeClient();
 
 			// Commands
-			GetDataCommand = new DelegateCommand(GetData, () => !IsBusy && Query.IsNotBlank());
-			DownloadSongCommand = new DelegateCommand<string>(o => DownloadSong(o), (o) => !IsBusy);
-			DownloadVideoCommand = new DelegateCommand<string>(o => DownloadVideo(o), (o) => !IsBusy);
+			GetDataCommand = new RelayCommand(GetData, () => !IsBusy && Query.IsNotBlank());
+			DownloadSongCommand = new RelayCommand<string>(o => DownloadSong(o), _ => !IsBusy);
+			DownloadVideoCommand = new RelayCommand<string>(o => DownloadVideo(o), _ => !IsBusy);
+
+			ViewLoadedCommand = new RelayCommand(ViewLoaded);
+			ViewClosedCommand = new RelayCommand(ViewClosed);
+
+			// Messages
+			//MessengerInstance.Register<StartExportMessage>(this, m => Export(m.Channel, m.FilePath, m.Format, m.From, m.To));
 		}
 
 		private async void GetData()
@@ -175,6 +195,38 @@ namespace YouTubeTool.ViewModels
 
 			IsBusy = false;
 			IsProgressIndeterminate = false;
+		}
+
+		private async void ViewLoaded()
+		{
+			// Check and prepare update
+			try
+			{
+				var updateVersion = await _updateService.CheckPrepareUpdateAsync();
+				if (updateVersion != null)
+				{
+					MessengerInstance.Send(new ShowNotificationMessage(
+						$"Update to DiscordChatExporter v{updateVersion} will be installed when you exit",
+						"INSTALL NOW", () =>
+						{
+							_updateService.NeedRestart = true;
+							Application.Current.Shutdown();
+						}));
+				}
+			}
+			catch
+			{
+				MessengerInstance.Send(new ShowNotificationMessage("Failed to perform application auto-update"));
+			}
+		}
+
+		private void ViewClosed()
+		{
+			// Save settings
+			//_settingsService.Save();
+
+			// Finalize updates if available
+			_updateService.FinalizeUpdate();
 		}
 
 		#region YouTube Song DL

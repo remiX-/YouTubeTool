@@ -1,6 +1,9 @@
-﻿using System.Windows;
+﻿using GalaSoft.MvvmLight.Messaging;
+using MaterialDesignThemes.Wpf;
+using System;
+using System.Windows;
 using YouTubeTool.Core;
-using YouTubeTool.Services;
+using YouTubeTool.Utils.Messages;
 using YouTubeTool.ViewModels;
 
 namespace YouTubeTool.Windows
@@ -9,19 +12,28 @@ namespace YouTubeTool.Windows
 	{
 		#region Vars
 		private MainViewModel MyViewModel;
-
-		private readonly IUpdateService _updateService = new UpdateService();
 		#endregion
 
 		public WindowMain()
 		{
 			InitializeComponent();
+
+			MainSnackbar.MessageQueue = new SnackbarMessageQueue(TimeSpan.FromSeconds(5));
+
+			// Notification messages
+			Messenger.Default.Register<ShowNotificationMessage>(this, m =>
+			{
+				if (m.CallbackCaption != null && m.Callback != null)
+					MainSnackbar.MessageQueue.Enqueue(m.Message, m.CallbackCaption, m.Callback);
+				else
+					MainSnackbar.MessageQueue.Enqueue(m.Message);
+			});
 		}
 
-		private async void Window_Loaded(object sender, RoutedEventArgs e)
+		private void Window_Loaded(object sender, RoutedEventArgs e)
 		{
 			MyViewModel = DataContext as MainViewModel;
-			MyViewModel.Query = "https://www.youtube.com/playlist?list=PLyiJecar_vAhAQNqZtbSfCLH-LpUeBnxh";
+			//MyViewModel.Query = "https://www.youtube.com/playlist?list=PLyiJecar_vAhAQNqZtbSfCLH-LpUeBnxh";
 
 			Width = AppGlobal.Settings.Windows["Main"].Width;
 			Height = AppGlobal.Settings.Windows["Main"].Height;
@@ -29,25 +41,6 @@ namespace YouTubeTool.Windows
 			Top = (SystemParameters.PrimaryScreenHeight - Height) / 2;
 
 			WindowState = AppGlobal.Settings.Windows["Main"].Maximized ? WindowState.Maximized : WindowState.Normal;
-
-			// Check and prepare update
-			try
-			{
-				var updateVersion = await _updateService.CheckPrepareUpdateAsync();
-				if (updateVersion != null)
-				{
-					MainSnackbar.MessageQueue.Enqueue($"Update to DiscordChatExporter v{updateVersion} will be installed when you exit", "INSTALL NOW",
-						() =>
-						{
-							_updateService.NeedRestart = true;
-							Application.Current.Shutdown();
-						});
-				}
-			}
-			catch
-			{
-				MainSnackbar.MessageQueue.Enqueue("Failed to perform application auto-update");
-			}
 		}
 
 		private void Window_Closed(object sender, System.EventArgs e)
@@ -60,9 +53,6 @@ namespace YouTubeTool.Windows
 
 			AppGlobal.Settings.Windows["Main"].Maximized = WindowState == WindowState.Maximized;
 			AppGlobal.Settings.Save();
-
-			// Finalize updates if available
-			_updateService.FinalizeUpdate();
 		}
 	}
 }
