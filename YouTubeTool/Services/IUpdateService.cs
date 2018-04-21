@@ -8,12 +8,10 @@ namespace YouTubeTool.Services
 {
 	public interface IUpdateService
 	{
-		Task<Version> CheckForUpdatesAsync();
+		bool NeedRestart { get; set; }
 
-		Task ApplyUpdate();
+		Task<Version> CheckPrepareUpdateAsync();
 
-		Task PrepareUpdateAsync();
-
-		void ApplyUpdateAsync(bool restart = true);
+		void FinalizeUpdate();
 	}
 }

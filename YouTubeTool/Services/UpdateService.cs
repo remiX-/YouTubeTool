@@ -7,67 +7,53 @@ namespace YouTubeTool.Services
 {
 	public class UpdateService : IUpdateService
 	{
-		private readonly UpdateManager _updateManager;
+		private readonly IUpdateManager _manager;
 
-		private Version _lastVersion;
-		private bool _applied;
+		private Version _updateVersion;
+		private bool _updateFinalized;
+
+		public bool NeedRestart { get; set; }
 
 		public UpdateService()
 		{
-			_updateManager = new UpdateManager(new GithubPackageResolver("remiX-", "YouTube-tool", "youtube.tool.zip"), new ZipPackageExtractor());
+			_manager = new UpdateManager(new GithubPackageResolver("remiX-", "YouTube-tool", "YouTubeTool.zip"), new ZipPackageExtractor());
 		}
 
-		public async Task<Version> CheckForUpdatesAsync()
+		public async Task<Version> CheckPrepareUpdateAsync()
 		{
 #if DEBUG
 			// Never update in DEBUG mode
-			return null;
+			//return null;
 #endif
 
-			// Remove some junk left over from last update
-			_updateManager.Cleanup();
+			// Cleanup leftover files
+			_manager.Cleanup();
 
 			// Check for updates
-			var check = await _updateManager.CheckForUpdatesAsync();
+			var check = await _manager.CheckForUpdatesAsync();
+			if (!check.CanUpdate)
+				return null;
 
-			// Return latest version or null if running latest version already
-			return check.CanUpdate ? _lastVersion = check.LastVersion : null;
+			// Prepare the update
+			if (!_manager.IsUpdatePrepared(check.LastVersion))
+				await _manager.PrepareUpdateAsync(check.LastVersion);
+
+			return _updateVersion = check.LastVersion;
 		}
 
-		public async Task ApplyUpdate()
+		public void FinalizeUpdate()
 		{
-			// Prepare an update so it can be applied later
-			// (supports optional progress reporting and cancellation)
-			await _updateManager.PrepareUpdateAsync(_lastVersion);
-
-			// Launch an executable that will apply the update
-			// (can optionally restart application on completion)
-			_updateManager.LaunchUpdater(_lastVersion);
-
-			// External updater will wait until the application exits
-			Environment.Exit(0);
-		}
-
-		public async Task PrepareUpdateAsync()
-		{
-			if (_lastVersion == null)
+			// Check if an update is pending
+			if (_updateVersion == null)
 				return;
 
-			// Download and prepare update
-			await _updateManager.PrepareUpdateAsync(_lastVersion);
-		}
-
-		public void ApplyUpdateAsync(bool restart = true)
-		{
-			if (_lastVersion == null)
-				return;
-			if (_applied)
+			// Check if the update has already been finalized
+			if (_updateFinalized)
 				return;
 
-			// Enqueue an update
-			_updateManager.LaunchUpdater(_lastVersion, restart);
-
-			_applied = true;
+			// Launch the updater
+			_manager.LaunchUpdater(_updateVersion, NeedRestart);
+			_updateFinalized = true;
 		}
 	}
 }
