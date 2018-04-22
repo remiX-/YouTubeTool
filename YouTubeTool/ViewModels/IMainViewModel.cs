@@ -20,7 +20,11 @@ namespace YouTubeTool.ViewModels
 		string Query { get; set; }
 
 		Playlist Playlist { get; }
-		bool IsDataAvailable { get; }
+		Video Video { get; }
+		Channel Channel { get; }
+		bool IsVideoDataAvailable { get; }
+		bool IsPlaylistDataAvailable { get; }
+		bool IsChannelDataAvailable { get; }
 
 		double Progress { get; }
 		bool IsProgressIndeterminate { get; }

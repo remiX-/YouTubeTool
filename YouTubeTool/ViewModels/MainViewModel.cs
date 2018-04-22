@@ -14,6 +14,7 @@ using YoutubeExplode.Models;
 using YoutubeExplode.Models.MediaStreams;
 using YouTubeTool.Core;
 using YouTubeTool.Dialogs;
+using YouTubeTool.Enums;
 using YouTubeTool.Services;
 using YouTubeTool.Utils.Messages;
 
@@ -129,7 +130,7 @@ namespace YouTubeTool.ViewModels
 			private set
 			{
 				Set(ref _playlist, value);
-				RaisePropertyChanged("IsDataAvailable");
+				RaisePropertyChanged(() => IsPlaylistDataAvailable);
 			}
 		}
 
@@ -139,7 +140,7 @@ namespace YouTubeTool.ViewModels
 			private set
 			{
 				Set(ref _video, value);
-				RaisePropertyChanged("IsDataAvailable");
+				RaisePropertyChanged(() => IsVideoDataAvailable);
 			}
 		}
 
@@ -149,11 +150,13 @@ namespace YouTubeTool.ViewModels
 			private set
 			{
 				Set(ref _channel, value);
-				RaisePropertyChanged("IsDataAvailable");
+				RaisePropertyChanged(() => IsChannelDataAvailable);
 			}
 		}
 
-		public bool IsDataAvailable => Playlist != null;
+		public bool IsPlaylistDataAvailable => Playlist != null;
+		public bool IsVideoDataAvailable => Video != null;
+		public bool IsChannelDataAvailable => Channel != null;
 
 		public double Progress
 		{
@@ -223,6 +226,7 @@ namespace YouTubeTool.ViewModels
 
 			// Vars
 			Query = "https://www.youtube.com/playlist?list=PLyiJecar_vAhAQNqZtbSfCLH-LpUeBnxh";
+			Query = "https://www.youtube.com/watch?v=Sa0c1VGoiyc";
 			X = _settingsService.WindowSettings.X;
 			Y = _settingsService.WindowSettings.Y;
 			Width = _settingsService.WindowSettings.Width;
@@ -284,19 +288,31 @@ namespace YouTubeTool.ViewModels
 
 			// Reset data
 			Playlist = null;
-			//Video = null;
-			//Channel = null;
+			Video = null;
+			Channel = null;
 			//MediaStreamInfos = null;
 			//ClosedCaptionTrackInfos = null;
 
-			// Parse URL if necessary
-			if (!YoutubeClient.TryParsePlaylistId(Query, out var playlistId))
-				playlistId = Query;
+			var id = Query;
 
-			Status = $"Working on playlist [{playlistId}]...";
+			// Parse URL if necessary
+			if (YoutubeClient.ValidatePlaylistId(id) || YoutubeClient.TryParsePlaylistId(Query, out id))
+			{
+				Status = $"Working on playlist [{id}]...";
+				Playlist = await _client.GetPlaylistAsync(id);
+			}
+			else if (YoutubeClient.ValidateVideoId(id) || YoutubeClient.TryParseVideoId(Query, out id))
+			{
+				Status = $"Working on video [{id}]...";
+				Video = await _client.GetVideoAsync(id);
+			}
+			else if (YoutubeClient.ValidateChannelId(id) || YoutubeClient.TryParseChannelId(Query, out id))
+			{
+				Status = $"Working on channel [{id}]...";
+				Channel = await _client.GetChannelAsync(id);
+			}
 
 			// Get data
-			Playlist = await _client.GetPlaylistAsync(playlistId);
 			//await DownloadAndConvertPlaylistAsync(playlistId);
 			//Video = await _client.GetVideoAsync(videoId);
 			//Channel = await _client.GetVideoAuthorChannelAsync(videoId);
@@ -464,5 +480,10 @@ namespace YouTubeTool.ViewModels
 			var result = await DialogHost.Show(view, "RootDialog");
 		}
 		#endregion
+
+		private bool IsPlaylist(string query)
+		{
+			return YoutubeClient.ValidatePlaylistId(query) || YoutubeClient.TryParsePlaylistId(Query, out var _);
+		}
 	}
 }

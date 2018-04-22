@@ -4,6 +4,7 @@
 		xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
 		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 		xmlns:viewModels="clr-namespace:YouTubeTool.ViewModels"
+		xmlns:views="clr-namespace:YouTubeTool.Views"
 		DataContext="{Binding MainViewModel, Source={StaticResource Locator}}"
 		Title="{Binding MyTitle}"
 		Style="{StaticResource AppWindow}"
@@ -60,60 +61,32 @@
 					<RowDefinition />
 					<RowDefinition Height="Auto" />
 				</Grid.RowDefinitions>
-
+				
 				<!--  Video info  -->
+				<views:VideoCard Grid.Row="1"
+								 Margin="16 8 16 0"
+								 DataContext="{Binding Video}"
+								 Visibility="{Binding MainViewModel.IsVideoDataAvailable, Converter={StaticResource BoolToVisibilityConverter}, Source={StaticResource Locator}}"/>
+
+				<!--  Playlist info  -->
 				<ScrollViewer Grid.Row="1"
 							  HorizontalScrollBarVisibility="Disabled"
-							  VerticalScrollBarVisibility="Auto">
+							  VerticalScrollBarVisibility="Auto"
+							  Visibility="{Binding MainViewModel.IsPlaylistDataAvailable, Converter={StaticResource BoolToVisibilityConverter}, Source={StaticResource Locator}}">
 					<StackPanel Orientation="Vertical">
 						<ItemsControl ItemsSource="{Binding Playlist.Videos}"
 									  Margin="16 0 16 16"
 									  VerticalAlignment="Top">
 							<ItemsControl.ItemTemplate>
 								<DataTemplate>
-									<materialDesign:Card Margin="0 8 0 0">
-										<Expander Background="{x:Null}">
-											<Expander.Header>
-												<StackPanel Orientation="Horizontal">
-													<materialDesign:PackIcon Width="18"
-																			 Height="18"
-																			 VerticalAlignment="Center"
-																			 Kind="CommentTextOutline" />
-													<TextBlock Margin="6,0,0,0"
-															   FontSize="15"
-															   Text="{Binding Title}" />
-												</StackPanel>
-											</Expander.Header>
-
-											<Grid Margin="16 8">
-												<Grid.RowDefinitions>
-													<RowDefinition />
-													<RowDefinition />
-												</Grid.RowDefinitions>
-
-												<TextBlock Grid.Row="0"
-														   Text="{Binding Description}"
-														   TextWrapping="Wrap" />
-												
-												<StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right">
-													<Button Style="{StaticResource MaterialDesignFlatAccentButton}"
-															Content="Song"
-															Command="{Binding MainViewModel.DownloadSongCommand, Source={StaticResource Locator}}"
-															CommandParameter="{Binding}" />
-													<Button Style="{StaticResource MaterialDesignFlatAccentButton}"
-															Content="Video"
-															Command="{Binding MainViewModel.DownloadVideoCommand, Source={StaticResource Locator}}"
-															CommandParameter="{Binding}"
-															Margin="8 0 0 0" />
-												</StackPanel>
-											</Grid>
-										</Expander>
-									</materialDesign:Card>
+									<views:VideoCard Margin="0 8 0 0" />
 								</DataTemplate>
 							</ItemsControl.ItemTemplate>
 						</ItemsControl>
 					</StackPanel>
 				</ScrollViewer>
+				
+				<!--  Channel info  -->
 
 				<materialDesign:ColorZone Grid.Row="0"
 										  Mode="PrimaryDark"
@@ -156,7 +129,7 @@
 									<TextBox Grid.Column="0"
 										 x:Name="QueryTextBox"
 										 Margin="10 6 0 6"
-										 materialDesign:HintAssist.Hint="Youtube video URL or ID"
+										 materialDesign:HintAssist.Hint="Youtube video/playlist URL or ID"
 										 materialDesign:TextFieldAssist.DecorationVisibility="Hidden"
 										 BorderThickness="0"
 										 FontSize="16"
