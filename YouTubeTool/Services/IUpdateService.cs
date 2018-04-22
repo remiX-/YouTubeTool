@@ -10,6 +10,9 @@ namespace YouTubeTool.Services
 	{
 		bool NeedRestart { get; set; }
 
+		Task<Version> CheckForUpdateAsync();
+		Task PrepareUpdateAsync();
+
 		Task<Version> CheckPrepareUpdateAsync();
 
 		void FinalizeUpdate();

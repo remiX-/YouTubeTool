@@ -7,6 +7,7 @@ namespace YouTubeTool.Services
 {
 	public class UpdateService : IUpdateService
 	{
+		private readonly ISettingsService _settingsService;
 		private readonly IUpdateManager _manager;
 
 		private Version _updateVersion;
@@ -14,9 +15,38 @@ namespace YouTubeTool.Services
 
 		public bool NeedRestart { get; set; }
 
-		public UpdateService()
+		public UpdateService(ISettingsService settingsService)
 		{
+			_settingsService = settingsService;
+
 			_manager = new UpdateManager(new GithubPackageResolver("remiX-", "YouTube-tool", "YouTubeTool.zip"), new ZipPackageExtractor());
+		}
+
+		public async Task<Version> CheckForUpdateAsync()
+		{
+			// If auto-update is disabled - don't check for updates
+			if (!_settingsService.IsAutoUpdateEnabled)
+				return null;
+
+#if DEBUG
+			// Never update in DEBUG mode
+			//return null;
+#endif
+
+			// Check for updates
+			var check = await _manager.CheckForUpdatesAsync();
+			return check.LastVersion;
+			if (!check.CanUpdate)
+				return null;
+
+			return _updateVersion = check.LastVersion;
+		}
+
+		public async Task PrepareUpdateAsync()
+		{
+			// Prepare the update
+			if (!_manager.IsUpdatePrepared(_updateVersion))
+				await _manager.PrepareUpdateAsync(_updateVersion);
 		}
 
 		public async Task<Version> CheckPrepareUpdateAsync()
