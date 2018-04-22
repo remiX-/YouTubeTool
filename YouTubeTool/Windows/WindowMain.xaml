@@ -181,7 +181,11 @@
 									Padding="16 8">
 					<DockPanel>
 						<Label DockPanel.Dock="Left" Content="{Binding Status}" VerticalAlignment="Center" />
-						<Button DockPanel.Dock="Right" Style="{StaticResource MaterialDesignFlatAccentButton}" Content="Right" HorizontalAlignment="Right" />
+						<Button DockPanel.Dock="Right"
+								Style="{StaticResource MaterialDesignFlatAccentButton}"
+								Content="{Binding Product}"
+								Command="{Binding HelpCommand}"
+								HorizontalAlignment="Right" />
 					</DockPanel>
 				</materialDesign:Card>
 

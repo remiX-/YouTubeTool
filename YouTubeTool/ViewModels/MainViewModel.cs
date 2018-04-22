@@ -12,6 +12,8 @@ using Tyrrrz.Extensions;
 using YoutubeExplode;
 using YoutubeExplode.Models;
 using YoutubeExplode.Models.MediaStreams;
+using YouTubeTool.Core;
+using YouTubeTool.Dialogs;
 using YouTubeTool.Services;
 using YouTubeTool.Utils.Messages;
 
@@ -20,13 +22,14 @@ namespace YouTubeTool.ViewModels
 	internal class MainViewModel : ViewModelBase, IMainViewModel
 	{
 		#region Variables
-		public HamburgerMenuItem[] AppMenu { get; }
 		private readonly YoutubeClient _client;
 
 		private readonly ISettingsService _settingsService;
 		private readonly IUpdateService _updateService;
 
 		private readonly Cli FfmpegCli = new Cli("ffmpeg.exe");
+
+		public HamburgerMenuItem[] AppMenu { get; }
 
 		private static readonly string TempDirectoryPath = Path.Combine(Directory.GetCurrentDirectory(), "Temp");
 		private static readonly string OutputDirectoryPath = Path.Combine(Directory.GetCurrentDirectory(), "Output");
@@ -40,6 +43,7 @@ namespace YouTubeTool.ViewModels
 
 		private string myTitle;
 		private string status;
+		private string product;
 
 		private bool _isBusy;
 		private string _query;
@@ -91,6 +95,12 @@ namespace YouTubeTool.ViewModels
 				Set(ref status, value);
 				Console.WriteLine(status);
 			}
+		}
+
+		public string Product
+		{
+			get => product;
+			set => Set(ref product, value);
 		}
 
 		public bool IsBusy
@@ -163,11 +173,14 @@ namespace YouTubeTool.ViewModels
 		public RelayCommand<Video> DownloadSongCommand { get; }
 		public RelayCommand<Video> DownloadVideoCommand { get; }
 
+		public RelayCommand HelpCommand { get; }
+
 		public RelayCommand ViewLoadedCommand { get; }
 		public RelayCommand ViewClosedCommand { get; }
 		#endregion
 		#endregion
 
+		#region Window Events
 		public MainViewModel(ISettingsService settingsService, IUpdateService updateService)
 		{
 			_settingsService = settingsService;
@@ -175,6 +188,8 @@ namespace YouTubeTool.ViewModels
 
 			MyTitle = "YouTube";
 			Status = "Ready";
+			Product = $"Made by {AppGlobal.AssemblyCompany} v{AppGlobal.AssemblyVersion}";
+
 			WindowState = WindowState.Minimized;
 
 			AppMenu = new[]
@@ -193,40 +208,10 @@ namespace YouTubeTool.ViewModels
 			DownloadSongCommand = new RelayCommand<Video>(o => DownloadSong(o), _ => !IsBusy);
 			DownloadVideoCommand = new RelayCommand<Video>(o => DownloadVideo(o), _ => !IsBusy);
 
+			HelpCommand = new RelayCommand(ShowAboutDialog);
+
 			ViewLoadedCommand = new RelayCommand(ViewLoaded);
 			ViewClosedCommand = new RelayCommand(ViewClosed);
-		}
-
-		private async void GetData()
-		{
-			IsBusy = true;
-			IsProgressIndeterminate = true;
-
-			// Reset data
-			Playlist = null;
-			//Video = null;
-			//Channel = null;
-			//MediaStreamInfos = null;
-			//ClosedCaptionTrackInfos = null;
-
-			// Parse URL if necessary
-			if (!YoutubeClient.TryParsePlaylistId(Query, out var playlistId))
-				playlistId = Query;
-
-			Status = $"Working on playlist [{playlistId}]...";
-
-			// Get data
-			Playlist = await _client.GetPlaylistAsync(playlistId);
-			//await DownloadAndConvertPlaylistAsync(playlistId);
-			//Video = await _client.GetVideoAsync(videoId);
-			//Channel = await _client.GetVideoAuthorChannelAsync(videoId);
-			//MediaStreamInfos = await _client.GetVideoMediaStreamInfosAsync(videoId);
-			//ClosedCaptionTrackInfos = await _client.GetVideoClosedCaptionTrackInfosAsync(videoId);\
-
-			Status = "Ready";
-
-			IsBusy = false;
-			IsProgressIndeterminate = false;
 		}
 
 		private async void ViewLoaded()
@@ -287,6 +272,41 @@ namespace YouTubeTool.ViewModels
 		{
 			WindowState = _settingsService.WindowSettings.Maximized ? WindowState.Maximized : WindowState.Normal;
 		}
+		#endregion
+
+		#region Core
+		private async void GetData()
+		{
+			IsBusy = true;
+			IsProgressIndeterminate = true;
+
+			// Reset data
+			Playlist = null;
+			//Video = null;
+			//Channel = null;
+			//MediaStreamInfos = null;
+			//ClosedCaptionTrackInfos = null;
+
+			// Parse URL if necessary
+			if (!YoutubeClient.TryParsePlaylistId(Query, out var playlistId))
+				playlistId = Query;
+
+			Status = $"Working on playlist [{playlistId}]...";
+
+			// Get data
+			Playlist = await _client.GetPlaylistAsync(playlistId);
+			//await DownloadAndConvertPlaylistAsync(playlistId);
+			//Video = await _client.GetVideoAsync(videoId);
+			//Channel = await _client.GetVideoAuthorChannelAsync(videoId);
+			//MediaStreamInfos = await _client.GetVideoMediaStreamInfosAsync(videoId);
+			//ClosedCaptionTrackInfos = await _client.GetVideoClosedCaptionTrackInfosAsync(videoId);\
+
+			Status = "Ready";
+
+			IsBusy = false;
+			IsProgressIndeterminate = false;
+		}
+		#endregion
 
 		#region YouTube Song DL
 		private async Task DownloadSongPlaylistAsync(string id)
@@ -424,6 +444,14 @@ namespace YouTubeTool.ViewModels
 			await DownloadVideoAsync(o.Id);
 
 			Status = "Ready";
+		}
+
+		private async void ShowAboutDialog()
+		{
+			var view = new AboutDialog();
+
+			//show the dialog
+			var result = await DialogHost.Show(view, "RootDialog");
 		}
 		#endregion
 	}
