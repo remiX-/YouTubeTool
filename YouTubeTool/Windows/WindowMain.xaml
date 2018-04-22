@@ -9,10 +9,15 @@
 		Style="{StaticResource AppWindow}"
 		Icon="/YouTubeTool;component/favicon.ico"
 		Loaded="Window_Loaded" Closed="Window_Closed"
-		Width="1024" Height="576" MinWidth="1024" MinHeight="576">
+		WindowStartupLocation="CenterScreen"
+		WindowState="{Binding WindowState, Mode=TwoWay}"
+		Width="{Binding Width, Mode=TwoWay}" Height="{Binding Height, Mode=TwoWay}" MinWidth="1024" MinHeight="576">
 	<i:Interaction.Triggers>
 		<i:EventTrigger EventName="Loaded">
 			<i:InvokeCommandAction Command="{Binding ViewLoadedCommand}" />
+		</i:EventTrigger>
+		<i:EventTrigger EventName="Closed">
+			<i:InvokeCommandAction Command="{Binding ViewClosedCommand}" />
 		</i:EventTrigger>
 	</i:Interaction.Triggers>
 
@@ -92,12 +97,12 @@
 												<StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right">
 													<Button Style="{StaticResource MaterialDesignFlatAccentButton}"
 															Content="Song"
-															Command="{Binding Path=DataContext.DownloadSongCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ItemsControl}}"
-															CommandParameter="{Binding Id}" />
+															Command="{Binding MainViewModel.DownloadSongCommand, Source={StaticResource Locator}}"
+															CommandParameter="{Binding}" />
 													<Button Style="{StaticResource MaterialDesignFlatAccentButton}"
 															Content="Video"
-															Command="{Binding Path=DataContext.DownloadVideoCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ItemsControl}}"
-															CommandParameter="{Binding Id}"
+															Command="{Binding MainViewModel.DownloadVideoCommand, Source={StaticResource Locator}}"
+															CommandParameter="{Binding}"
 															Margin="8 0 0 0" />
 												</StackPanel>
 											</Grid>

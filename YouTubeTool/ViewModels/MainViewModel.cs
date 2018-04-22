@@ -23,6 +23,7 @@ namespace YouTubeTool.ViewModels
 		public HamburgerMenuItem[] AppMenu { get; }
 		private readonly YoutubeClient _client;
 
+		private readonly ISettingsService _settingsService;
 		private readonly IUpdateService _updateService;
 
 		private readonly Cli FfmpegCli = new Cli("ffmpeg.exe");
@@ -31,6 +32,10 @@ namespace YouTubeTool.ViewModels
 		private static readonly string OutputDirectoryPath = Path.Combine(Directory.GetCurrentDirectory(), "Output");
 
 		#region Fields
+		private double width;
+		private double height;
+		private WindowState windowState;
+
 		private string myTitle;
 		private string status;
 
@@ -44,6 +49,22 @@ namespace YouTubeTool.ViewModels
 		#endregion
 
 		#region Properties
+		public double Width
+		{
+			get => width;
+			set => Set(ref width, value);
+		}
+		public double Height
+		{
+			get => height;
+			set => Set(ref height, value);
+		}
+		public WindowState WindowState
+		{
+			get => windowState;
+			set => Set(ref windowState, value);
+		}
+
 		public string MyTitle
 		{
 			get => myTitle;
@@ -127,17 +148,18 @@ namespace YouTubeTool.ViewModels
 
 		#region Commands
 		public RelayCommand GetDataCommand { get; }
-		public RelayCommand<string> DownloadSongCommand { get; }
-		public RelayCommand<string> DownloadVideoCommand { get; }
+		public RelayCommand<Video> DownloadSongCommand { get; }
+		public RelayCommand<Video> DownloadVideoCommand { get; }
 
 		public RelayCommand ViewLoadedCommand { get; }
 		public RelayCommand ViewClosedCommand { get; }
 		#endregion
 		#endregion
 
-		public MainViewModel()
+		public MainViewModel(ISettingsService settingsService, IUpdateService updateService)
 		{
-			_updateService = new UpdateService();
+			_settingsService = settingsService;
+			_updateService = updateService;
 
 			MyTitle = "YouTube";
 			Status = "Ready";
@@ -155,14 +177,11 @@ namespace YouTubeTool.ViewModels
 
 			// Commands
 			GetDataCommand = new RelayCommand(GetData, () => !IsBusy && Query.IsNotBlank());
-			DownloadSongCommand = new RelayCommand<string>(o => DownloadSong(o), _ => !IsBusy);
-			DownloadVideoCommand = new RelayCommand<string>(o => DownloadVideo(o), _ => !IsBusy);
+			DownloadSongCommand = new RelayCommand<Video>(o => DownloadSong(o), _ => !IsBusy);
+			DownloadVideoCommand = new RelayCommand<Video>(o => DownloadVideo(o), _ => !IsBusy);
 
 			ViewLoadedCommand = new RelayCommand(ViewLoaded);
 			ViewClosedCommand = new RelayCommand(ViewClosed);
-
-			// Messages
-			//MessengerInstance.Register<StartExportMessage>(this, m => Export(m.Channel, m.FilePath, m.Format, m.From, m.To));
 		}
 
 		private async void GetData()
@@ -199,6 +218,15 @@ namespace YouTubeTool.ViewModels
 
 		private async void ViewLoaded()
 		{
+			// Load settings
+			_settingsService.Load();
+
+			// Vars
+			Query = "https://www.youtube.com/playlist?list=PLyiJecar_vAhAQNqZtbSfCLH-LpUeBnxh";
+			Width = _settingsService.Windows["Main"].Width;
+			Height = _settingsService.Windows["Main"].Height;
+			WindowState = _settingsService.Windows["Main"].Maximized ? WindowState.Maximized : WindowState.Normal;
+
 			// Check and prepare update
 			try
 			{
@@ -206,7 +234,7 @@ namespace YouTubeTool.ViewModels
 				if (updateVersion != null)
 				{
 					MessengerInstance.Send(new ShowNotificationMessage(
-						$"Update to DiscordChatExporter v{updateVersion} will be installed when you exit",
+						$"Update to YouTubeTool v{updateVersion} will be installed when you exit",
 						"INSTALL NOW", () =>
 						{
 							_updateService.NeedRestart = true;
@@ -223,7 +251,10 @@ namespace YouTubeTool.ViewModels
 		private void ViewClosed()
 		{
 			// Save settings
-			//_settingsService.Save();
+			_settingsService.Windows["Main"].Width = Width;
+			_settingsService.Windows["Main"].Height = Height;
+			_settingsService.Windows["Main"].Maximized = WindowState == WindowState.Maximized;
+			_settingsService.Save();
 
 			// Finalize updates if available
 			_updateService.FinalizeUpdate();
@@ -353,18 +384,16 @@ namespace YouTubeTool.ViewModels
 		#endregion
 
 		#region Commands
-		private async void DownloadSong(string o)
+		private async void DownloadSong(Video o)
 		{
-			Video video = Playlist.Videos.First(v => v.Id == o);
-			await DownloadSongAsync(video.Id);
+			await DownloadSongAsync(o.Id);
 
 			Status = "Ready";
 		}
 
-		private async void DownloadVideo(string o)
+		private async void DownloadVideo(Video o)
 		{
-			Video video = Playlist.Videos.First(v => v.Id == o);
-			await DownloadVideoAsync(video.Id);
+			await DownloadVideoAsync(o.Id);
 
 			Status = "Ready";
 		}

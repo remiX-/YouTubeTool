@@ -1,10 +1,18 @@
 ﻿using GalaSoft.MvvmLight.CommandWpf;
+using System.Windows;
 using YoutubeExplode.Models;
 
 namespace YouTubeTool.ViewModels
 {
 	public interface IMainViewModel
 	{
+		double Width { get; }
+		double Height { get; }
+		WindowState WindowState { get; }
+
+		string MyTitle { get; }
+		string Status { get; }
+
 		bool IsBusy { get; }
 		string Query { get; set; }
 
@@ -15,9 +23,10 @@ namespace YouTubeTool.ViewModels
 		bool IsProgressIndeterminate { get; }
 
 		RelayCommand GetDataCommand { get; }
-		RelayCommand<string> DownloadSongCommand { get; }
-		RelayCommand<string> DownloadVideoCommand { get; }
+		RelayCommand<Video> DownloadSongCommand { get; }
+		RelayCommand<Video> DownloadVideoCommand { get; }
 
 		RelayCommand ViewLoadedCommand { get; }
+		RelayCommand ViewClosedCommand { get; }
 	}
 }
