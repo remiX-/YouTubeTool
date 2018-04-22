@@ -121,6 +121,14 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Page Include="Dialogs\AboutDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Dialogs\SettingsDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Windows\WindowTest.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -136,6 +144,12 @@
     <Compile Include="Core\AppGlobal.cs" />
     <Compile Include="Core\AppPaths.cs" />
     <Compile Include="Core\Locator.cs" />
+    <Compile Include="Dialogs\AboutDialog.xaml.cs">
+      <DependentUpon>AboutDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\SettingsDialog.xaml.cs">
+      <DependentUpon>SettingsDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Services\ISettingsService.cs" />
     <Compile Include="Services\IUpdateService.cs" />
     <Compile Include="Services\SettingsService.cs" />
@@ -144,7 +158,9 @@
     <Compile Include="Utils\Messages\ShowNotificationMessage.cs" />
     <Compile Include="ViewModels\HamburgerMenuItem.cs" />
     <Compile Include="ViewModels\IMainViewModel.cs" />
+    <Compile Include="ViewModels\ISettingsViewModel.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
+    <Compile Include="ViewModels\SettingsViewModel.cs" />
     <Compile Include="Windows\WindowTest.xaml.cs">
       <DependentUpon>WindowTest.xaml</DependentUpon>
     </Compile>

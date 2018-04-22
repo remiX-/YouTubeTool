@@ -8,7 +8,8 @@ namespace YouTubeTool.Core
 	public class Locator
 	{
 		public IMainViewModel MainViewModel => Resolve<IMainViewModel>();
-
+		public ISettingsService SettingsViewModel => Resolve<ISettingsService>();
+			
 		private T Resolve<T>(string key = null)
 		{
 			return ServiceLocator.Current.GetInstance<T>(key);
@@ -24,7 +25,8 @@ namespace YouTubeTool.Core
 			SimpleIoc.Default.Register<IUpdateService, UpdateService>();
 
 			// View models
-			SimpleIoc.Default.Register<IMainViewModel, MainViewModel>();
+			SimpleIoc.Default.Register<IMainViewModel, MainViewModel>(true);
+			SimpleIoc.Default.Register<ISettingsViewModel, SettingsViewModel>(true);
 		}
 
 		public static void Cleanup()

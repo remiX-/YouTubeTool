@@ -1,0 +1,30 @@
+﻿<UserControl x:Class="YouTubeTool.Dialogs.SettingsDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+    Width="250"
+    DataContext="{Binding SettingsViewModel, Source={StaticResource Locator}}">
+	<StackPanel Margin="16">
+		<!--  Date format  -->
+		<TextBox Margin="0 0 0 8"
+				 materialDesign:HintAssist.Hint="Date format"
+				 materialDesign:HintAssist.IsFloating="True"
+				 Text="{Binding DateFormat}" />
+
+		<!--  Auto-updates  -->
+		<DockPanel LastChildFill="False" Margin="0 0 0 8">
+			<TextBlock DockPanel.Dock="Left"
+					   Text="Auto-updates" />
+			<ToggleButton DockPanel.Dock="Right"
+						  IsChecked="{Binding IsAutoUpdateEnabled}" />
+		</DockPanel>
+
+		<!--  Save button  -->
+		<Button HorizontalAlignment="Right"
+				Command="{x:Static materialDesign:DialogHost.CloseDialogCommand}"
+				Content="SAVE"
+				IsCancel="True"
+				IsDefault="True"
+				Style="{DynamicResource MaterialDesignFlatButton}" />
+	</StackPanel>
+</UserControl>
