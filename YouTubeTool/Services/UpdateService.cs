@@ -35,7 +35,6 @@ namespace YouTubeTool.Services
 
 			// Check for updates
 			var check = await _manager.CheckForUpdatesAsync();
-			return check.LastVersion;
 			if (!check.CanUpdate)
 				return null;
 

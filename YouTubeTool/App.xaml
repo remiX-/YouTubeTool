@@ -55,7 +55,7 @@
 			</Style>
 
 			<!--  Converters  -->
-			<converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+			<converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
 
 			<!--  Locator  -->
 			<core:Locator x:Key="Locator" />
