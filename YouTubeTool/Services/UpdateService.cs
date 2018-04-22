@@ -23,7 +23,7 @@ namespace YouTubeTool.Services
 		{
 #if DEBUG
 			// Never update in DEBUG mode
-			//return null;
+			return null;
 #endif
 
 			// Cleanup leftover files

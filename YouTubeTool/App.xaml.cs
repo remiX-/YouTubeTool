@@ -1,5 +1,4 @@
-﻿using System.IO;
-using System.Threading;
+﻿using System.Threading;
 using System.Windows;
 using YouTubeTool.Core;
 
@@ -21,16 +20,6 @@ namespace YouTubeTool
 			{
 				Current.Shutdown();
 			}
-
-			// Check program directories
-			if (!Directory.Exists(AppGlobal.Paths.RootDirectory))
-				Directory.CreateDirectory(AppGlobal.Paths.RootDirectory);
-
-			// Load settings file
-			if (File.Exists(AppGlobal.Paths.SettingsFile))
-				AppGlobal.Settings = AppSettings.Read();
-			else
-				AppGlobal.Settings = new AppSettings(true);
 
 			Locator.Init();
 		}
