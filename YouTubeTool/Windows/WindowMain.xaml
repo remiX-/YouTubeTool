@@ -11,6 +11,7 @@
 		Loaded="Window_Loaded" Closed="Window_Closed"
 		WindowStartupLocation="CenterScreen"
 		WindowState="{Binding WindowState, Mode=TwoWay}"
+		Left="{Binding X, Mode=TwoWay}" Top="{Binding Y, Mode=TwoWay}"
 		Width="{Binding Width, Mode=TwoWay}" Height="{Binding Height, Mode=TwoWay}" MinWidth="1024" MinHeight="576">
 	<i:Interaction.Triggers>
 		<i:EventTrigger EventName="Loaded">

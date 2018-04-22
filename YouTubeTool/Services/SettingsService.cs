@@ -1,16 +1,21 @@
 ﻿using System.Collections.Generic;
 using Tyrrrz.Settings;
+using Newtonsoft.Json;
 
 namespace YouTubeTool.Services
 {
 	public class SettingsService : SettingsManager, ISettingsService
 	{
-		// Layouts
-		public Dictionary<string, LayoutSettings> Windows { get; set; }
+		#region Vars
+		[JsonProperty("windowSettings")]
+		public LayoutSettings WindowSettings { get; set; }
 
+		[JsonProperty("enableAutoUpdate")]
 		public bool IsAutoUpdateEnabled { get; set; }
 
+		[JsonProperty("dateFormat")]
 		public string DateFormat { get; set; }
+		#endregion
 
 		public SettingsService()
 		{
@@ -36,27 +41,32 @@ namespace YouTubeTool.Services
 
 		private void LoadDefaults()
 		{
-			// Layout
-			Windows = new Dictionary<string, LayoutSettings>
-			{
-				["Main"] = new LayoutSettings(1024, 576, false)
-			};
+			WindowSettings = new LayoutSettings(0, 0, 1024, 576, false);
 
 			IsAutoUpdateEnabled = true;
 
-			DateFormat = "dd-MMM-yy hh:mm tt";
+			DateFormat = "dd/MMMM/yyyy hh:mm tt";
 		}
 	}
 
 	public class LayoutSettings
 	{
+		[JsonProperty("x")]
+		public double X { get; set; }
+		[JsonProperty("y")]
+		public double Y { get; set; }
+		[JsonProperty("width")]
 		public double Width { get; set; }
+		[JsonProperty("height")]
 		public double Height { get; set; }
 
+		[JsonProperty("maximized")]
 		public bool Maximized { get; set; }
 
-		public LayoutSettings(double width, double height, bool maximized)
+		public LayoutSettings(double x, double y, double width, double height, bool maximized)
 		{
+			X = x;
+			Y = y;
 			Width = width;
 			Height = height;
 			Maximized = maximized;

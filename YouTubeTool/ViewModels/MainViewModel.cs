@@ -32,6 +32,8 @@ namespace YouTubeTool.ViewModels
 		private static readonly string OutputDirectoryPath = Path.Combine(Directory.GetCurrentDirectory(), "Output");
 
 		#region Fields
+		private double x;
+		private double y;
 		private double width;
 		private double height;
 		private WindowState windowState;
@@ -49,6 +51,16 @@ namespace YouTubeTool.ViewModels
 		#endregion
 
 		#region Properties
+		public double X
+		{
+			get => x;
+			set => Set(ref x, value);
+		}
+		public double Y
+		{
+			get => y;
+			set => Set(ref y, value);
+		}
 		public double Width
 		{
 			get => width;
@@ -163,6 +175,7 @@ namespace YouTubeTool.ViewModels
 
 			MyTitle = "YouTube";
 			Status = "Ready";
+			WindowState = WindowState.Minimized;
 
 			AppMenu = new[]
 			{
@@ -223,21 +236,29 @@ namespace YouTubeTool.ViewModels
 
 			// Vars
 			Query = "https://www.youtube.com/playlist?list=PLyiJecar_vAhAQNqZtbSfCLH-LpUeBnxh";
-			Width = _settingsService.Windows["Main"].Width;
-			Height = _settingsService.Windows["Main"].Height;
-			WindowState = _settingsService.Windows["Main"].Maximized ? WindowState.Maximized : WindowState.Normal;
+			X = _settingsService.WindowSettings.X;
+			Y = _settingsService.WindowSettings.Y;
+			Width = _settingsService.WindowSettings.Width;
+			Height = _settingsService.WindowSettings.Height;
+
+			if (X == 0 && Y == 0)
+			{
+				X = (SystemParameters.PrimaryScreenWidth - Width) / 2;
+				Y = (SystemParameters.PrimaryScreenHeight - Height) / 2;
+			}
 
 			// Check and prepare update
 			try
 			{
-				var updateVersion = await _updateService.CheckPrepareUpdateAsync();
+				var updateVersion = await _updateService.CheckForUpdateAsync();
 				if (updateVersion != null)
 				{
-					MessengerInstance.Send(new ShowNotificationMessage(
-						$"Update to YouTubeTool v{updateVersion} will be installed when you exit",
-						"INSTALL NOW", () =>
+					MessengerInstance.Send(new ShowNotificationMessage($"v{updateVersion} is available", "GET",
+						async () =>
 						{
+							await _updateService.PrepareUpdateAsync();
 							_updateService.NeedRestart = true;
+
 							Application.Current.Shutdown();
 						}));
 				}
@@ -251,13 +272,20 @@ namespace YouTubeTool.ViewModels
 		private void ViewClosed()
 		{
 			// Save settings
-			_settingsService.Windows["Main"].Width = Width;
-			_settingsService.Windows["Main"].Height = Height;
-			_settingsService.Windows["Main"].Maximized = WindowState == WindowState.Maximized;
+			_settingsService.WindowSettings.X = X;
+			_settingsService.WindowSettings.Y = Y;
+			_settingsService.WindowSettings.Width = Width;
+			_settingsService.WindowSettings.Height = Height;
+			_settingsService.WindowSettings.Maximized = WindowState == WindowState.Maximized;
 			_settingsService.Save();
 
 			// Finalize updates if available
 			_updateService.FinalizeUpdate();
+		}
+
+		public void UpdateWindowState()
+		{
+			WindowState = _settingsService.WindowSettings.Maximized ? WindowState.Maximized : WindowState.Normal;
 		}
 
 		#region YouTube Song DL

@@ -6,6 +6,8 @@ namespace YouTubeTool.ViewModels
 {
 	public interface IMainViewModel
 	{
+		double X { get; }
+		double Y { get; }
 		double Width { get; }
 		double Height { get; }
 		WindowState WindowState { get; }

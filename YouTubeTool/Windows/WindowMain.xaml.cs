@@ -1,6 +1,7 @@
 ﻿using GalaSoft.MvvmLight.Messaging;
 using MaterialDesignThemes.Wpf;
 using System;
+using System.Threading.Tasks;
 using System.Windows;
 using YouTubeTool.Core;
 using YouTubeTool.Utils.Messages;
@@ -30,10 +31,16 @@ namespace YouTubeTool.Windows
 			});
 		}
 
-		private void Window_Loaded(object sender, RoutedEventArgs e)
+		private async void Window_Loaded(object sender, RoutedEventArgs e)
 		{
 			MyViewModel = DataContext as MainViewModel;
 
+			await Task.Delay(100);
+
+			Activate();
+			WindowState = WindowState.Normal;
+
+			MyViewModel.UpdateWindowState();
 		}
 
 		private void Window_Closed(object sender, EventArgs e)

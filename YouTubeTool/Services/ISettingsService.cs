@@ -4,7 +4,7 @@ namespace YouTubeTool.Services
 {
     public interface ISettingsService
     {
-		Dictionary<string, LayoutSettings> Windows { get; set; }
+		LayoutSettings WindowSettings { get; set; }
 
 		bool IsAutoUpdateEnabled { get; set; }
 
