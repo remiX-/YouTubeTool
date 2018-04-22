@@ -173,7 +173,8 @@ namespace YouTubeTool.ViewModels
 		public RelayCommand<Video> DownloadSongCommand { get; }
 		public RelayCommand<Video> DownloadVideoCommand { get; }
 
-		public RelayCommand HelpCommand { get; }
+		public RelayCommand ShowSettingsCommand { get; }
+		public RelayCommand ShowAboutCommand { get; }
 
 		public RelayCommand ViewLoadedCommand { get; }
 		public RelayCommand ViewClosedCommand { get; }
@@ -208,7 +209,8 @@ namespace YouTubeTool.ViewModels
 			DownloadSongCommand = new RelayCommand<Video>(o => DownloadSong(o), _ => !IsBusy);
 			DownloadVideoCommand = new RelayCommand<Video>(o => DownloadVideo(o), _ => !IsBusy);
 
-			HelpCommand = new RelayCommand(ShowAboutDialog);
+			ShowSettingsCommand = new RelayCommand(ShowSettings);
+			ShowAboutCommand = new RelayCommand(ShowAbout);
 
 			ViewLoadedCommand = new RelayCommand(ViewLoaded);
 			ViewClosedCommand = new RelayCommand(ViewClosed);
@@ -446,7 +448,15 @@ namespace YouTubeTool.ViewModels
 			Status = "Ready";
 		}
 
-		private async void ShowAboutDialog()
+		private async void ShowSettings()
+		{
+			var view = new SettingsDialog();
+
+			//show the dialog
+			var result = await DialogHost.Show(view, "RootDialog");
+		}
+
+		private async void ShowAbout()
 		{
 			var view = new AboutDialog();
 

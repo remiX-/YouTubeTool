@@ -14,6 +14,7 @@ namespace YouTubeTool.ViewModels
 
 		string MyTitle { get; }
 		string Status { get; }
+		string Product { get; }
 
 		bool IsBusy { get; }
 		string Query { get; set; }

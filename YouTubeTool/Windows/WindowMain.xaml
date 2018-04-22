@@ -120,31 +120,33 @@
 										  Padding="0"
 										  materialDesign:ShadowAssist.ShadowDepth="Depth2">
 					<StackPanel>
-						<DockPanel Margin="16">
+						<DockPanel Margin="16 16 8 16">
 							<!-- HamburgerMenu -->
 							<ToggleButton DockPanel.Dock="Left"  x:Name="MenuToggleButton" Style="{DynamicResource MaterialDesignHamburgerToggleButton}" />
 
 							<!-- Popup box -->
-							<materialDesign:PopupBox DockPanel.Dock="Right" Margin="0" PlacementMode="BottomAndAlignRightEdges" StaysOpen="False">
+							<materialDesign:PopupBox DockPanel.Dock="Right"
+													 Margin="0"
+													 PlacementMode="LeftAndAlignTopEdges"
+													 StaysOpen="False">
 								<StackPanel MinWidth="200">
-									<TextBlock Margin="15" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="18" TextTrimming="CharacterEllipsis" Text="Bloo"/>
-									<Separator Margin="4,0" />
-									<MenuItem ToolTip="View" Header="One">
+									<TextBlock Margin="12" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="18" TextTrimming="CharacterEllipsis" Text="Bloo"/>
+									<Separator Margin="16,0" />
+									<MenuItem Header="Settings" ToolTip="Settings" Padding="8 16" Command="{Binding ShowSettingsCommand}">
 										<MenuItem.Icon>
-											<materialDesign:PackIcon Kind="FormatListChecks" />
+											<materialDesign:PackIcon Kind="Settings" />
 										</MenuItem.Icon>
 									</MenuItem>
-									<Separator />
-									<MenuItem ToolTip="View" Header="Two">
+									<MenuItem Header="About" ToolTip="About" Command="{Binding ShowAboutCommand}">
 										<MenuItem.Icon>
-											<materialDesign:PackIcon Kind="BookmarkMusic" />
+											<materialDesign:PackIcon Kind="InformationOutline" />
 										</MenuItem.Icon>
 									</MenuItem>
 								</StackPanel>
 							</materialDesign:PopupBox>
 
 							<!--  Query  -->
-							<materialDesign:Card Margin="12 0">
+							<materialDesign:Card Margin="6 0">
 								<Grid>
 									<Grid.ColumnDefinitions>
 										<ColumnDefinition Width="*" />
@@ -184,7 +186,7 @@
 						<Button DockPanel.Dock="Right"
 								Style="{StaticResource MaterialDesignFlatAccentButton}"
 								Content="{Binding Product}"
-								Command="{Binding HelpCommand}"
+								Command="{Binding ShowAboutCommand}"
 								HorizontalAlignment="Right" />
 					</DockPanel>
 				</materialDesign:Card>
