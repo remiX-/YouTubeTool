@@ -87,6 +87,7 @@
 				</ScrollViewer>
 				
 				<!--  Channel info  -->
+				
 
 				<materialDesign:ColorZone Grid.Row="0"
 										  Mode="PrimaryDark"
@@ -105,7 +106,7 @@
 								<StackPanel MinWidth="200">
 									<TextBlock Margin="12" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="18" TextTrimming="CharacterEllipsis" Text="Bloo"/>
 									<Separator Margin="16,0" />
-									<MenuItem Header="Settings" ToolTip="Settings" Padding="8 16" Command="{Binding ShowSettingsCommand}">
+									<MenuItem Header="Settings" ToolTip="Settings" Command="{Binding ShowSettingsCommand}">
 										<MenuItem.Icon>
 											<materialDesign:PackIcon Kind="Settings" />
 										</MenuItem.Icon>

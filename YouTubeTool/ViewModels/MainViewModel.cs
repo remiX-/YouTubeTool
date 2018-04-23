@@ -14,7 +14,6 @@ using YoutubeExplode.Models;
 using YoutubeExplode.Models.MediaStreams;
 using YouTubeTool.Core;
 using YouTubeTool.Dialogs;
-using YouTubeTool.Enums;
 using YouTubeTool.Services;
 using YouTubeTool.Utils.Messages;
 
@@ -225,7 +224,7 @@ namespace YouTubeTool.ViewModels
 			_settingsService.Load();
 
 			// Vars
-			Query = "https://www.youtube.com/playlist?list=PLyiJecar_vAhAQNqZtbSfCLH-LpUeBnxh";
+			Query = "https://www.youtube.com/playlist?list=PLyifJecar_vAhAQNqZtbSfCLH-LpUeBnxh";
 			Query = "https://www.youtube.com/watch?v=Sa0c1VGoiyc";
 			X = _settingsService.WindowSettings.X;
 			Y = _settingsService.WindowSettings.Y;
