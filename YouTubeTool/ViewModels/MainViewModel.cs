@@ -6,8 +6,10 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using Tyrrrz.Extensions;
 using YoutubeExplode;
 using YoutubeExplode.Models;
@@ -35,6 +37,8 @@ namespace YouTubeTool.ViewModels
 		private static readonly string OutputDirectoryPath = Path.Combine(Directory.GetCurrentDirectory(), "Output");
 
 		#region Fields
+		private bool isResizing;
+
 		private double x;
 		private double y;
 		private double width;
@@ -55,6 +59,16 @@ namespace YouTubeTool.ViewModels
 		#endregion
 
 		#region Properties
+		public bool IsResizing
+		{
+			get => isResizing;
+			set
+			{
+				Set(ref isResizing, value);
+				RaisePropertyChanged(() => IsPlaylistDataAvailable);
+			}
+		}
+
 		public double X
 		{
 			get => x;
@@ -153,7 +167,7 @@ namespace YouTubeTool.ViewModels
 			}
 		}
 
-		public bool IsPlaylistDataAvailable => Playlist != null;
+		public bool IsPlaylistDataAvailable => !IsResizing && Playlist != null;
 		public bool IsVideoDataAvailable => Video != null;
 		public bool IsChannelDataAvailable => Channel != null;
 
@@ -180,6 +194,7 @@ namespace YouTubeTool.ViewModels
 
 		public RelayCommand ViewLoadedCommand { get; }
 		public RelayCommand ViewClosedCommand { get; }
+		public RelayCommand ViewSizeChangedCommand { get; }
 		#endregion
 		#endregion
 
@@ -216,6 +231,7 @@ namespace YouTubeTool.ViewModels
 
 			ViewLoadedCommand = new RelayCommand(ViewLoaded);
 			ViewClosedCommand = new RelayCommand(ViewClosed);
+			ViewSizeChangedCommand = new RelayCommand(ViewSizeChanged);
 		}
 
 		private async void ViewLoaded()
@@ -224,8 +240,8 @@ namespace YouTubeTool.ViewModels
 			_settingsService.Load();
 
 			// Vars
-			Query = "https://www.youtube.com/playlist?list=PLyifJecar_vAhAQNqZtbSfCLH-LpUeBnxh";
 			Query = "https://www.youtube.com/watch?v=Sa0c1VGoiyc";
+			Query = "https://www.youtube.com/playlist?list=PLyiJecar_vAhAQNqZtbSfCLH-LpUeBnxh";
 			X = _settingsService.WindowSettings.X;
 			Y = _settingsService.WindowSettings.Y;
 			Width = _settingsService.WindowSettings.Width;
@@ -273,6 +289,11 @@ namespace YouTubeTool.ViewModels
 			_updateService.FinalizeUpdate();
 		}
 
+		private void ViewSizeChanged()
+		{
+			//IsResizing = true;
+		}
+
 		public void UpdateWindowState()
 		{
 			WindowState = _settingsService.WindowSettings.Maximized ? WindowState.Maximized : WindowState.Normal;
@@ -295,17 +316,17 @@ namespace YouTubeTool.ViewModels
 			var id = Query;
 
 			// Parse URL if necessary
-			if (YoutubeClient.ValidatePlaylistId(id) || YoutubeClient.TryParsePlaylistId(Query, out id))
+			if (YoutubeClient.ValidatePlaylistId(Query) || YoutubeClient.TryParsePlaylistId(Query, out id))
 			{
 				Status = $"Working on playlist [{id}]...";
 				Playlist = await _client.GetPlaylistAsync(id);
 			}
-			else if (YoutubeClient.ValidateVideoId(id) || YoutubeClient.TryParseVideoId(Query, out id))
+			else if (YoutubeClient.ValidateVideoId(Query) || YoutubeClient.TryParseVideoId(Query, out id))
 			{
 				Status = $"Working on video [{id}]...";
 				Video = await _client.GetVideoAsync(id);
 			}
-			else if (YoutubeClient.ValidateChannelId(id) || YoutubeClient.TryParseChannelId(Query, out id))
+			else if (YoutubeClient.ValidateChannelId(Query) || YoutubeClient.TryParseChannelId(Query, out id))
 			{
 				Status = $"Working on channel [{id}]...";
 				Channel = await _client.GetChannelAsync(id);

@@ -12,7 +12,7 @@
 				<StackPanel Orientation="Horizontal">
 					<Button Padding="4"
 							Height="Auto"
-							Style="{DynamicResource MaterialDesignFlatButton}"
+							Style="{DynamicResource MaterialDesignFlatAccentButton}"
 							ToolTip="Download mp3"
 							Command="{Binding MainViewModel.DownloadSongCommand, Source={StaticResource Locator}}"
 							CommandParameter="{Binding}">
@@ -21,7 +21,7 @@
 
 					<Button Padding="4"
 							Height="Auto"
-							Style="{DynamicResource MaterialDesignFlatButton}"
+							Style="{DynamicResource MaterialDesignFlatAccentButton}"
 							ToolTip="Download video"
 							Command="{Binding MainViewModel.DownloadVideoCommand, Source={StaticResource Locator}}"
 							CommandParameter="{Binding}">
@@ -40,28 +40,25 @@
 				</StackPanel>
 			</Expander.Header>
 
-			<Grid Margin="16 8">
-				<Grid.RowDefinitions>
-					<RowDefinition />
-					<RowDefinition />
-				</Grid.RowDefinitions>
+			<StackPanel Margin="0">
+				<Grid HorizontalAlignment="Stretch" Background="Black">
+					<!--  Thumbnail  -->
+					<Image Height="180" Source="{Binding Thumbnails.MediumResUrl}" />
 
-				<TextBlock Grid.Row="0"
+					<!--  Duration  -->
+					<TextBlock Margin="0,0,8,6"
+							   Padding="2"
+							   HorizontalAlignment="Right"
+							   VerticalAlignment="Bottom"
+							   Text="{Binding Video.Duration}" />
+				</Grid>
+
+				<StackPanel Margin="16">
+					<TextBlock Grid.Row="0"
 						   Text="{Binding Description}"
 						   TextWrapping="Wrap" />
-				
-				<!--<StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right">
-					<Button Style="{StaticResource MaterialDesignFlatAccentButton}"
-							Content="Song"
-							Command="{Binding MainViewModel.DownloadSongCommand, Source={StaticResource Locator}}"
-							CommandParameter="{Binding}" />
-					<Button Style="{StaticResource MaterialDesignFlatAccentButton}"
-							Content="Video"
-							Command="{Binding MainViewModel.DownloadVideoCommand, Source={StaticResource Locator}}"
-							CommandParameter="{Binding}"
-							Margin="8 0 0 0" />
-				</StackPanel>-->
-			</Grid>
+				</StackPanel>
+			</StackPanel>
 		</Expander>
 	</materialDesign:Card>
 </UserControl>

@@ -21,6 +21,9 @@
 		<i:EventTrigger EventName="Closed">
 			<i:InvokeCommandAction Command="{Binding ViewClosedCommand}" />
 		</i:EventTrigger>
+		<i:EventTrigger EventName="SizeChanged">
+			<i:InvokeCommandAction Command="{Binding ViewSizeChangedCommand}" />
+		</i:EventTrigger>
 	</i:Interaction.Triggers>
 
 	<materialDesign:DialogHost Identifier="RootDialog" SnackbarMessageQueue="{Binding ElementName=MainSnackbar, Path=MessageQueue}">
