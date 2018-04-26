@@ -3,13 +3,12 @@ using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.CommandWpf;
 using MaterialDesignThemes.Wpf;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
 using Tyrrrz.Extensions;
 using YoutubeExplode;
 using YoutubeExplode.Models;
@@ -33,11 +32,11 @@ namespace YouTubeTool.ViewModels
 
 		public HamburgerMenuItem[] AppMenu { get; }
 
-		private static readonly string TempDirectoryPath = Path.Combine(Directory.GetCurrentDirectory(), "Temp");
-		private static readonly string OutputDirectoryPath = Path.Combine(Directory.GetCurrentDirectory(), "Output");
+		private string TempDirectoryPath => Path.Combine(_settingsService.OutputFolder.NullIfBlank() ?? Directory.GetCurrentDirectory(), "temp");
+		private string OutputDirectoryPath => Path.Combine(_settingsService.OutputFolder.NullIfBlank() ?? Directory.GetCurrentDirectory(), "output");
 
 		#region Fields
-		private bool isResizing;
+		//private bool isResizing;
 
 		private double x;
 		private double y;
@@ -49,6 +48,8 @@ namespace YouTubeTool.ViewModels
 		private string status;
 		private string product;
 
+		private List<Video> searchList;
+
 		private bool _isBusy;
 		private string _query;
 		private Playlist _playlist;
@@ -59,15 +60,15 @@ namespace YouTubeTool.ViewModels
 		#endregion
 
 		#region Properties
-		public bool IsResizing
-		{
-			get => isResizing;
-			set
-			{
-				Set(ref isResizing, value);
-				RaisePropertyChanged(() => IsPlaylistDataAvailable);
-			}
-		}
+		//public bool IsResizing
+		//{
+		//	get => isResizing;
+		//	set
+		//	{
+		//		Set(ref isResizing, value);
+		//		RaisePropertyChanged(() => IsPlaylistDataAvailable);
+		//	}
+		//}
 
 		public double X
 		{
@@ -117,6 +118,12 @@ namespace YouTubeTool.ViewModels
 			set => Set(ref product, value);
 		}
 
+		public List<Video> SearchList
+		{
+			get => searchList;
+			set => Set(ref searchList, value);
+		}
+
 		public bool IsBusy
 		{
 			get => _isBusy;
@@ -143,7 +150,11 @@ namespace YouTubeTool.ViewModels
 			private set
 			{
 				Set(ref _playlist, value);
-				RaisePropertyChanged(() => IsPlaylistDataAvailable);
+
+				if (_playlist == null) return;
+
+				SearchList = _playlist.Videos.ToList();
+				//RaisePropertyChanged(() => IsPlaylistDataAvailable);
 			}
 		}
 
@@ -153,7 +164,11 @@ namespace YouTubeTool.ViewModels
 			private set
 			{
 				Set(ref _video, value);
-				RaisePropertyChanged(() => IsVideoDataAvailable);
+
+				if (_video == null) return;
+
+				SearchList = new List<Video> { _video };
+				//RaisePropertyChanged(() => IsVideoDataAvailable);
 			}
 		}
 
@@ -163,13 +178,13 @@ namespace YouTubeTool.ViewModels
 			private set
 			{
 				Set(ref _channel, value);
-				RaisePropertyChanged(() => IsChannelDataAvailable);
+				//RaisePropertyChanged(() => IsChannelDataAvailable);
 			}
 		}
 
-		public bool IsPlaylistDataAvailable => !IsResizing && Playlist != null;
-		public bool IsVideoDataAvailable => Video != null;
-		public bool IsChannelDataAvailable => Channel != null;
+		//public bool IsPlaylistDataAvailable => !IsResizing && Playlist != null;
+		//public bool IsVideoDataAvailable => Video != null;
+		//public bool IsChannelDataAvailable => Channel != null;
 
 		public double Progress
 		{
@@ -201,13 +216,14 @@ namespace YouTubeTool.ViewModels
 		#region Window Events
 		public MainViewModel(ISettingsService settingsService, IUpdateService updateService)
 		{
+			// Services
 			_settingsService = settingsService;
 			_updateService = updateService;
 
+			// Default vars
 			MyTitle = "YouTube";
 			Status = "Ready";
 			Product = $"Made by {AppGlobal.AssemblyCompany} v{AppGlobal.AssemblyVersion}";
-
 			WindowState = WindowState.Minimized;
 
 			AppMenu = new[]
@@ -333,9 +349,6 @@ namespace YouTubeTool.ViewModels
 			}
 
 			// Get data
-			//await DownloadAndConvertPlaylistAsync(playlistId);
-			//Video = await _client.GetVideoAsync(videoId);
-			//Channel = await _client.GetVideoAuthorChannelAsync(videoId);
 			//MediaStreamInfos = await _client.GetVideoMediaStreamInfosAsync(videoId);
 			//ClosedCaptionTrackInfos = await _client.GetVideoClosedCaptionTrackInfosAsync(videoId);\
 

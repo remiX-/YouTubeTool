@@ -1,6 +1,7 @@
 ﻿<Window x:Class="YouTubeTool.Windows.WindowMain"
 		xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 		xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+		xmlns:explodeModels="clr-namespace:YoutubeExplode.Models;assembly=YoutubeExplode"
 		xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
 		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 		xmlns:viewModels="clr-namespace:YouTubeTool.ViewModels"
@@ -66,29 +67,66 @@
 				</Grid.RowDefinitions>
 				
 				<!--  Video info  -->
-				<views:VideoCard Grid.Row="1"
+				<!--<views:VideoCard Grid.Row="1"
 								 Margin="16 8 16 0"
 								 DataContext="{Binding Video}"
-								 Visibility="{Binding MainViewModel.IsVideoDataAvailable, Converter={StaticResource BoolToVisibilityConverter}, Source={StaticResource Locator}}"/>
+								 Visibility="{Binding MainViewModel.IsVideoDataAvailable, Converter={StaticResource BoolToVisibilityConverter}, Source={StaticResource Locator}}"/>-->
 
-				<!--  Playlist info  -->
-				<ScrollViewer Grid.Row="1"
+				<Grid Grid.Row="1">
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition />
+						<ColumnDefinition />
+					</Grid.ColumnDefinitions>
+					
+					<!--  Video list  -->
+					<ListBox Grid.Column="0"
+							 x:Name="VideoList"
+							 Margin="16"
+							 ItemsSource="{Binding SearchList}">
+						<ListBox.ItemTemplate>
+							<DataTemplate DataType="explodeModels:Video">
+								<StackPanel Margin="8" Orientation="Horizontal">
+									<!--<Rectangle Grid.Column="0"
+											   Width="6"
+											   Fill="{DynamicResource SecondaryAccentBrush}"
+											   Visibility="{Binding IsSelected, Converter={StaticResource BoolToVisibilityConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListBoxItem}}" />-->
+
+									<!--  Author image  -->
+									<Image Height="50"
+										   VerticalAlignment="Top"
+										   Source="{Binding Thumbnails.LowResUrl}" />
+
+									<TextBlock Text="{Binding Title}"
+											   Margin="16 0 0 0"
+											   VerticalAlignment="Center" />
+								</StackPanel>
+							</DataTemplate>
+						</ListBox.ItemTemplate>
+					</ListBox>
+					
+					<views:VideoCard Grid.Column="1"
+									 Margin="16"
+									 DataContext="{Binding ElementName=VideoList, Path=SelectedItem}" />
+
+					<!--  Playlist info  -->
+					<!--<ScrollViewer Grid.Column="1"
 							  HorizontalScrollBarVisibility="Disabled"
 							  VerticalScrollBarVisibility="Auto"
 							  Visibility="{Binding MainViewModel.IsPlaylistDataAvailable, Converter={StaticResource BoolToVisibilityConverter}, Source={StaticResource Locator}}">
-					<StackPanel Orientation="Vertical">
-						<ItemsControl ItemsSource="{Binding Playlist.Videos}"
+						<StackPanel Orientation="Vertical">
+							<ItemsControl ItemsSource="{Binding Playlist.Videos}"
 									  Margin="16 0 16 16"
 									  VerticalAlignment="Top">
-							<ItemsControl.ItemTemplate>
-								<DataTemplate>
-									<views:VideoCard Margin="0 8 0 0" />
-								</DataTemplate>
-							</ItemsControl.ItemTemplate>
-						</ItemsControl>
-					</StackPanel>
-				</ScrollViewer>
-				
+								<ItemsControl.ItemTemplate>
+									<DataTemplate>
+										<views:VideoCard Margin="0 8 0 0" />
+									</DataTemplate>
+								</ItemsControl.ItemTemplate>
+							</ItemsControl>
+						</StackPanel>
+					</ScrollViewer>-->
+				</Grid>
+
 				<!--  Channel info  -->
 				
 

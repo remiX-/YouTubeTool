@@ -22,9 +22,9 @@ namespace YouTubeTool.ViewModels
 		Playlist Playlist { get; }
 		Video Video { get; }
 		Channel Channel { get; }
-		bool IsVideoDataAvailable { get; }
-		bool IsPlaylistDataAvailable { get; }
-		bool IsChannelDataAvailable { get; }
+		//bool IsVideoDataAvailable { get; }
+		//bool IsPlaylistDataAvailable { get; }
+		//bool IsChannelDataAvailable { get; }
 
 		double Progress { get; }
 		bool IsProgressIndeterminate { get; }
