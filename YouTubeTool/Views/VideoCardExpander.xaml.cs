@@ -2,9 +2,9 @@
 
 namespace YouTubeTool.Views
 {
-	public partial class VideoCard : UserControl
+	public partial class VideoCardExpander : UserControl
 	{
-		public VideoCard()
+		public VideoCardExpander()
 		{
 			InitializeComponent();
 		}

@@ -88,6 +88,7 @@
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.IO.Compression" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Windows.Interactivity, Version=4.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>packages\MvvmLightLibs.5.4.1\lib\net45\System.Windows.Interactivity.dll</HintPath>
     </Reference>
@@ -130,6 +131,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\VideoCard.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\VideoCardExpander.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -167,6 +172,9 @@
     <Compile Include="ViewModels\SettingsViewModel.cs" />
     <Compile Include="Views\VideoCard.xaml.cs">
       <DependentUpon>VideoCard.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\VideoCardExpander.xaml.cs">
+      <DependentUpon>VideoCardExpander.xaml</DependentUpon>
     </Compile>
     <Compile Include="Windows\WindowTest.xaml.cs">
       <DependentUpon>WindowTest.xaml</DependentUpon>
