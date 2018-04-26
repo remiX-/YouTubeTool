@@ -34,6 +34,6 @@ namespace YouTubeTool.ViewModels
 		RelayCommand<Video> DownloadVideoCommand { get; }
 
 		RelayCommand ViewLoadedCommand { get; }
-		RelayCommand ViewClosedCommand { get; }
+		RelayCommand ViewSizeChangedCommand { get; }
 	}
 }

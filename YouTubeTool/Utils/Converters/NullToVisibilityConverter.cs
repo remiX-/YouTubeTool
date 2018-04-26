@@ -4,17 +4,18 @@ using System.Windows.Data;
 
 namespace YouTubeTool.Utils.Converters
 {
-	[ValueConversion(typeof(bool), typeof(Visibility))]
-	public class BoolToVisibilityConverter : IValueConverter
+	[ValueConversion(typeof(object), typeof(Visibility))]
+	public class NullToVisibilityConverter : IValueConverter
 	{
 		public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
 		{
-			return (bool)value ? Visibility.Visible : Visibility.Hidden;
+			return value != null ? Visibility.Visible : Visibility.Hidden;
 		}
 
 		public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
 		{
-			return (Visibility)value == Visibility.Visible;
+			return new NotImplementedException();
+			//return (Visibility)value == Visibility.Visible;
 		}
 	}
 }

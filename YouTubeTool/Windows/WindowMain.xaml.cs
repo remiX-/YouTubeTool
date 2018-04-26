@@ -42,10 +42,5 @@ namespace YouTubeTool.Windows
 
 			MyViewModel.UpdateWindowState();
 		}
-
-		private void Window_Closed(object sender, EventArgs e)
-		{
-
-		}
 	}
 }

@@ -48,8 +48,8 @@
 
 				<StackPanel Margin="16">
 					<TextBlock Grid.Row="0"
-						   Text="{Binding Description}"
-						   TextWrapping="Wrap" />
+							   Text="{Binding Description}"
+							   TextWrapping="Wrap" />
 				</StackPanel>
 			</StackPanel>
 		</StackPanel>
