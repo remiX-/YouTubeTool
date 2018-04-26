@@ -208,7 +208,6 @@ namespace YouTubeTool.ViewModels
 		public RelayCommand ShowAboutCommand { get; }
 
 		public RelayCommand ViewLoadedCommand { get; }
-		public RelayCommand ViewClosedCommand { get; }
 		public RelayCommand ViewSizeChangedCommand { get; }
 		#endregion
 		#endregion
@@ -246,7 +245,6 @@ namespace YouTubeTool.ViewModels
 			ShowAboutCommand = new RelayCommand(ShowAbout);
 
 			ViewLoadedCommand = new RelayCommand(ViewLoaded);
-			ViewClosedCommand = new RelayCommand(ViewClosed);
 			ViewSizeChangedCommand = new RelayCommand(ViewSizeChanged);
 		}
 
@@ -323,6 +321,8 @@ namespace YouTubeTool.ViewModels
 			IsProgressIndeterminate = true;
 
 			// Reset data
+			SearchList = null;
+
 			Playlist = null;
 			Video = null;
 			Channel = null;
@@ -513,10 +513,5 @@ namespace YouTubeTool.ViewModels
 			var result = await DialogHost.Show(view, "RootDialog");
 		}
 		#endregion
-
-		private bool IsPlaylist(string query)
-		{
-			return YoutubeClient.ValidatePlaylistId(query) || YoutubeClient.TryParsePlaylistId(Query, out var _);
-		}
 	}
 }
