@@ -8,7 +8,7 @@ namespace YouTubeTool.Core
 	public class Locator
 	{
 		public IMainViewModel MainViewModel => Resolve<IMainViewModel>();
-		public ISettingsService SettingsViewModel => Resolve<ISettingsService>();
+		public ISettingsViewModel SettingsViewModel => Resolve<ISettingsViewModel>();
 			
 		private T Resolve<T>(string key = null)
 		{
