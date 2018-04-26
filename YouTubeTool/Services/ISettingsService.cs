@@ -2,15 +2,17 @@
 
 namespace YouTubeTool.Services
 {
-    public interface ISettingsService
-    {
+	public interface ISettingsService
+	{
 		LayoutSettings WindowSettings { get; set; }
+
+		string DateFormat { get; set; }
+
+		string OutputFolder { get; set; }
 
 		bool IsAutoUpdateEnabled { get; set; }
 
-        string DateFormat { get; set; }
-
-        void Load();
-        void Save();
-    }
+		void Load();
+		void Save();
+	}
 }

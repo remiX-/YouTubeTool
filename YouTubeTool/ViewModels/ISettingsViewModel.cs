@@ -1,15 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using GalaSoft.MvvmLight.CommandWpf;
 
 namespace YouTubeTool.ViewModels
 {
 	public interface ISettingsViewModel
 	{
-		bool IsAutoUpdateEnabled { get; set; }
+		string DateFormat { get; }
 
-		string DateFormat { get; set; }
+		string OutputFolder { get; }
+
+		bool IsAutoUpdateEnabled { get; }
+
+		RelayCommand BrowseOutputFolderCommand { get; }
 	}
 }

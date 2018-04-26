@@ -10,11 +10,14 @@ namespace YouTubeTool.Services
 		[JsonProperty("windowSettings")]
 		public LayoutSettings WindowSettings { get; set; }
 
-		[JsonProperty("enableAutoUpdate")]
-		public bool IsAutoUpdateEnabled { get; set; }
-
 		[JsonProperty("dateFormat")]
 		public string DateFormat { get; set; }
+
+		[JsonProperty("outputFolder")]
+		public string OutputFolder { get; set; }
+
+		[JsonProperty("enableAutoUpdate")]
+		public bool IsAutoUpdateEnabled { get; set; }
 		#endregion
 
 		public SettingsService()
@@ -43,9 +46,9 @@ namespace YouTubeTool.Services
 		{
 			WindowSettings = new LayoutSettings(0, 0, 1024, 576, false);
 
-			IsAutoUpdateEnabled = true;
-
 			DateFormat = "dd/MMMM/yyyy hh:mm tt";
+			OutputFolder = string.Empty;
+			IsAutoUpdateEnabled = true;
 		}
 	}
 
