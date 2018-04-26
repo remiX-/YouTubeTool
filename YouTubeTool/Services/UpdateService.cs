@@ -30,7 +30,7 @@ namespace YouTubeTool.Services
 
 #if DEBUG
 			// Never update in DEBUG mode
-			//return null;
+			return null;
 #endif
 
 			// Check for updates
@@ -46,28 +46,6 @@ namespace YouTubeTool.Services
 			// Prepare the update
 			if (!_manager.IsUpdatePrepared(_updateVersion))
 				await _manager.PrepareUpdateAsync(_updateVersion);
-		}
-
-		public async Task<Version> CheckPrepareUpdateAsync()
-		{
-#if DEBUG
-			// Never update in DEBUG mode
-			return null;
-#endif
-
-			// Cleanup leftover files
-			_manager.Cleanup();
-
-			// Check for updates
-			var check = await _manager.CheckForUpdatesAsync();
-			if (!check.CanUpdate)
-				return null;
-
-			// Prepare the update
-			if (!_manager.IsUpdatePrepared(check.LastVersion))
-				await _manager.PrepareUpdateAsync(check.LastVersion);
-
-			return _updateVersion = check.LastVersion;
 		}
 
 		public void FinalizeUpdate()

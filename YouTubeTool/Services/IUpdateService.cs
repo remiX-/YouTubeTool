@@ -13,8 +13,6 @@ namespace YouTubeTool.Services
 		Task<Version> CheckForUpdateAsync();
 		Task PrepareUpdateAsync();
 
-		Task<Version> CheckPrepareUpdateAsync();
-
 		void FinalizeUpdate();
 	}
 }
