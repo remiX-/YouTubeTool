@@ -1,9 +1,9 @@
 ﻿<Window x:Class="YouTubeTool.Windows.WindowMain"
 		xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 		xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
-		xmlns:explodeModels="clr-namespace:YoutubeExplode.Models;assembly=YoutubeExplode"
 		xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
 		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+		xmlns:explodeModels="clr-namespace:YoutubeExplode.Models;assembly=YoutubeExplode"
 		xmlns:viewModels="clr-namespace:YouTubeTool.ViewModels"
 		xmlns:views="clr-namespace:YouTubeTool.Views"
 		DataContext="{Binding MainViewModel, Source={StaticResource Locator}}"
@@ -62,53 +62,8 @@
 					<RowDefinition />
 					<RowDefinition Height="Auto" />
 				</Grid.RowDefinitions>
-				
-				<!--  Video info  -->
-				<!--<views:VideoCard Grid.Row="1"
-								 Margin="16 8 16 0"
-								 DataContext="{Binding Video}"
-								 Visibility="{Binding MainViewModel.IsVideoDataAvailable, Converter={StaticResource BoolToVisibilityConverter}, Source={StaticResource Locator}}"/>-->
 
-				<Grid Grid.Row="1">
-					<Grid.ColumnDefinitions>
-						<ColumnDefinition />
-						<ColumnDefinition />
-					</Grid.ColumnDefinitions>
-
-					<!--  Video list  -->
-					<ListBox Grid.Column="0"
-							 x:Name="VideoList"
-							 Margin="16"
-							 ItemsSource="{Binding SearchList}">
-						<ListBox.ItemTemplate>
-							<DataTemplate DataType="explodeModels:Video">
-								<StackPanel Margin="8" Orientation="Horizontal">
-									<!--<Rectangle Grid.Column="0"
-											   Width="6"
-											   Fill="{DynamicResource SecondaryAccentBrush}"
-											   Visibility="{Binding IsSelected, Converter={StaticResource BoolToVisibilityConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListBoxItem}}" />-->
-
-									<!--  Author image  -->
-									<Image Height="50"
-										   VerticalAlignment="Top"
-										   Source="{Binding Thumbnails.LowResUrl}" />
-
-									<TextBlock Text="{Binding Title}"
-											   Margin="16 0 0 0"
-											   VerticalAlignment="Center" />
-								</StackPanel>
-							</DataTemplate>
-						</ListBox.ItemTemplate>
-					</ListBox>
-
-					<!--  Video info  -->
-					<ScrollViewer Grid.Column="1" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
-						<views:VideoCard Margin="16"
-										 DataContext="{Binding Path=SelectedItem, ElementName=VideoList}"
-										 Visibility="{Binding Path=SelectedItem, ElementName=VideoList, Converter={StaticResource NullToVisibilityConverter}}" />
-					</ScrollViewer>
-				</Grid>
-
+				<!--  Top bar  -->
 				<materialDesign:ColorZone Grid.Row="0"
 										  Mode="PrimaryDark"
 										  Padding="0"
@@ -140,7 +95,7 @@
 							</materialDesign:PopupBox>
 
 							<!--  Query  -->
-							<materialDesign:Card Width="400">
+							<materialDesign:Card MaxWidth="700">
 								<DockPanel>
 									<Button DockPanel.Dock="Right"
 										Margin="6"
@@ -163,14 +118,57 @@
 							</materialDesign:Card>
 						</DockPanel>
 
-						<ProgressBar Background="Transparent" Height="6"
-								 IsIndeterminate="{Binding IsProgressIndeterminate}"
-								 Value="{Binding Progress, Mode=OneWay}" />
+						<!--  Loading Progress Bar  -->
+						<ProgressBar Background="Transparent"
+									 Height="5"
+									 IsIndeterminate="{Binding IsProgressIndeterminate}"
+									 Value="{Binding Progress, Mode=OneWay}" />
 					</StackPanel>
 				</materialDesign:ColorZone>
 
+				<!--  Core Content  -->
+				<Grid Grid.Row="1">
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition MaxWidth="600" />
+						<ColumnDefinition />
+					</Grid.ColumnDefinitions>
+
+					<!--  Video list  -->
+					<ListBox Grid.Column="0"
+							 x:Name="VideoList"
+							 Margin="16"
+							 ItemsSource="{Binding SearchList}">
+						<ListBox.ItemTemplate>
+							<DataTemplate DataType="explodeModels:Video">
+								<StackPanel Margin="8" Orientation="Horizontal">
+									<!--<Rectangle Grid.Column="0"
+											   Width="6"
+											   Fill="{DynamicResource SecondaryAccentBrush}"
+											   Visibility="{Binding IsSelected, Converter={StaticResource BoolToVisibilityConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListBoxItem}}" />-->
+
+									<!--  Author image  -->
+									<Image Height="50"
+										   VerticalAlignment="Top"
+										   Source="{Binding Thumbnails.LowResUrl}" />
+
+									<TextBlock Text="{Binding Title}"
+											   Margin="16 0 0 0"
+											   VerticalAlignment="Center" />
+								</StackPanel>
+							</DataTemplate>
+						</ListBox.ItemTemplate>
+					</ListBox>
+
+					<!--  Video info  -->
+					<views:VideoCard Grid.Column="1"
+									 Margin="16"
+									 DataContext="{Binding Path=SelectedItem, ElementName=VideoList}"
+									 Visibility="{Binding Path=SelectedItem, ElementName=VideoList, Converter={StaticResource NullToVisibilityConverter}}" />
+				</Grid>
+
+				<!--  Bottom bar  -->
 				<materialDesign:Card Grid.Row="2"
-									Padding="16 8">
+									 Padding="16 8">
 					<DockPanel>
 						<Label DockPanel.Dock="Left" Content="{Binding Status}" VerticalAlignment="Center" />
 						<Button DockPanel.Dock="Right"
@@ -181,6 +179,7 @@
 					</DockPanel>
 				</materialDesign:Card>
 
+				<!--  Snacky bar  -->
 				<materialDesign:Snackbar Grid.Row="2" x:Name="MainSnackbar" />
 			</Grid>
 		</materialDesign:DrawerHost>
