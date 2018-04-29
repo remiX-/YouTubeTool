@@ -204,6 +204,8 @@ namespace YouTubeTool.ViewModels
 		public RelayCommand<Video> DownloadSongCommand { get; }
 		public RelayCommand<Video> DownloadVideoCommand { get; }
 
+		public RelayCommand DownloadAllCommand { get; }
+
 		public RelayCommand ShowSettingsCommand { get; }
 		public RelayCommand ShowAboutCommand { get; }
 
@@ -240,6 +242,8 @@ namespace YouTubeTool.ViewModels
 			GetDataCommand = new RelayCommand(GetData, () => !IsBusy && Query.IsNotBlank());
 			DownloadSongCommand = new RelayCommand<Video>(o => DownloadSong(o), _ => !IsBusy);
 			DownloadVideoCommand = new RelayCommand<Video>(o => DownloadVideo(o), _ => !IsBusy);
+
+			DownloadAllCommand = new RelayCommand(DownloadAll);
 
 			ShowSettingsCommand = new RelayCommand(ShowSettings);
 			ShowAboutCommand = new RelayCommand(ShowAbout);
@@ -356,6 +360,19 @@ namespace YouTubeTool.ViewModels
 
 			IsBusy = false;
 			IsProgressIndeterminate = false;
+		}
+
+		private async void DownloadAll()
+		{
+			Status = $"Working on {SearchList.Count} videos";
+
+			// Work on the videos
+			Console.WriteLine();
+			foreach (var video in SearchList)
+			{
+				await DownloadSongAsync(video.Id);
+				Console.WriteLine();
+			}
 		}
 		#endregion
 

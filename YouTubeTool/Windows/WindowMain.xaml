@@ -134,30 +134,41 @@
 					</Grid.ColumnDefinitions>
 
 					<!--  Video list  -->
-					<ListBox Grid.Column="0"
-							 x:Name="VideoList"
-							 Margin="16"
-							 ItemsSource="{Binding SearchList}">
-						<ListBox.ItemTemplate>
-							<DataTemplate DataType="explodeModels:Video">
-								<StackPanel Margin="8" Orientation="Horizontal">
-									<!--<Rectangle Grid.Column="0"
+					<DockPanel Grid.Column="0" Margin="16">
+						<Button DockPanel.Dock="Top"
+								Margin="6"
+								Padding="4"
+								ToolTip="Download All"
+								Command="{Binding DownloadAllCommand}"
+								Style="{DynamicResource MaterialDesignFlatButton}">
+							<materialDesign:PackIcon Width="24" Height="24" Kind="Download" />
+						</Button>
+
+						<ListBox Grid.Column="0"
+								 x:Name="VideoList"
+								 Margin="0 8 0 0"
+								 ItemsSource="{Binding SearchList}">
+							<ListBox.ItemTemplate>
+								<DataTemplate DataType="explodeModels:Video">
+									<StackPanel Margin="8" Orientation="Horizontal">
+										<!--<Rectangle Grid.Column="0"
 											   Width="6"
 											   Fill="{DynamicResource SecondaryAccentBrush}"
 											   Visibility="{Binding IsSelected, Converter={StaticResource BoolToVisibilityConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListBoxItem}}" />-->
 
-									<!--  Author image  -->
-									<Image Height="50"
+										<!--  Author image  -->
+										<Image Height="50"
 										   VerticalAlignment="Top"
 										   Source="{Binding Thumbnails.LowResUrl}" />
 
-									<TextBlock Text="{Binding Title}"
+										<TextBlock Text="{Binding Title}"
 											   Margin="16 0 0 0"
 											   VerticalAlignment="Center" />
-								</StackPanel>
-							</DataTemplate>
-						</ListBox.ItemTemplate>
-					</ListBox>
+									</StackPanel>
+								</DataTemplate>
+							</ListBox.ItemTemplate>
+						</ListBox>
+					</DockPanel>
 
 					<!--  Video info  -->
 					<views:VideoCard Grid.Column="1"

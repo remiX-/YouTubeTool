@@ -33,6 +33,8 @@ namespace YouTubeTool.ViewModels
 		RelayCommand<Video> DownloadSongCommand { get; }
 		RelayCommand<Video> DownloadVideoCommand { get; }
 
+		RelayCommand DownloadAllCommand { get; }
+
 		RelayCommand ViewLoadedCommand { get; }
 		RelayCommand ViewSizeChangedCommand { get; }
 	}
