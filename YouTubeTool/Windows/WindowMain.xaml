@@ -134,14 +134,18 @@
 					</Grid.ColumnDefinitions>
 
 					<!--  Video list  -->
-					<DockPanel Grid.Column="0" Margin="16">
+					<DockPanel Grid.Column="0"
+							   Margin="16"
+							   Visibility="{Binding IsDataAvailable, Converter={StaticResource BoolToVisibilityConverter}}">
 						<Button DockPanel.Dock="Top"
 								Margin="6"
-								Padding="4"
 								ToolTip="Download All"
 								Command="{Binding DownloadAllCommand}"
 								Style="{DynamicResource MaterialDesignFlatButton}">
-							<materialDesign:PackIcon Width="24" Height="24" Kind="Download" />
+							<StackPanel Orientation="Horizontal">
+								<materialDesign:PackIcon Kind="Download" Margin="0 0 6px 0" />
+								<TextBlock Text="Download all as mp3" />
+							</StackPanel>
 						</Button>
 
 						<ListBox Grid.Column="0"
