@@ -121,7 +121,11 @@ namespace YouTubeTool.ViewModels
 		public List<Video> SearchList
 		{
 			get => searchList;
-			set => Set(ref searchList, value);
+			set
+			{
+				Set(ref searchList, value);
+				RaisePropertyChanged(() => IsDataAvailable);
+			}
 		}
 
 		public bool IsBusy
@@ -154,7 +158,7 @@ namespace YouTubeTool.ViewModels
 				if (_playlist == null) return;
 
 				SearchList = _playlist.Videos.ToList();
-				//RaisePropertyChanged(() => IsPlaylistDataAvailable);
+				RaisePropertyChanged(() => IsDataAvailable);
 			}
 		}
 
@@ -168,7 +172,7 @@ namespace YouTubeTool.ViewModels
 				if (_video == null) return;
 
 				SearchList = new List<Video> { _video };
-				//RaisePropertyChanged(() => IsVideoDataAvailable);
+				RaisePropertyChanged(() => IsDataAvailable);
 			}
 		}
 
@@ -182,9 +186,7 @@ namespace YouTubeTool.ViewModels
 			}
 		}
 
-		//public bool IsPlaylistDataAvailable => !IsResizing && Playlist != null;
-		//public bool IsVideoDataAvailable => Video != null;
-		//public bool IsChannelDataAvailable => Channel != null;
+		public bool IsDataAvailable => SearchList != null && SearchList.Count > 0;
 
 		public double Progress
 		{
@@ -243,7 +245,7 @@ namespace YouTubeTool.ViewModels
 			DownloadSongCommand = new RelayCommand<Video>(o => DownloadSong(o), _ => !IsBusy);
 			DownloadVideoCommand = new RelayCommand<Video>(o => DownloadVideo(o), _ => !IsBusy);
 
-			DownloadAllCommand = new RelayCommand(DownloadAll);
+			DownloadAllCommand = new RelayCommand(DownloadAll, () => !IsBusy);
 
 			ShowSettingsCommand = new RelayCommand(ShowSettings);
 			ShowAboutCommand = new RelayCommand(ShowAbout);
@@ -258,7 +260,7 @@ namespace YouTubeTool.ViewModels
 			_settingsService.Load();
 
 			// Vars
-			Query = "https://www.youtube.com/watch?v=Sa0c1VGoiyc";
+			Query = "Sa0c1VGoiyc";
 			Query = "https://www.youtube.com/playlist?list=PLyiJecar_vAhAQNqZtbSfCLH-LpUeBnxh";
 			X = _settingsService.WindowSettings.X;
 			Y = _settingsService.WindowSettings.Y;
@@ -334,29 +336,37 @@ namespace YouTubeTool.ViewModels
 			//ClosedCaptionTrackInfos = null;
 
 			var id = Query;
+			var tryId = Query;
 
 			// Parse URL if necessary
-			if (YoutubeClient.ValidatePlaylistId(Query) || YoutubeClient.TryParsePlaylistId(Query, out id))
+			try
 			{
-				Status = $"Working on playlist [{id}]...";
-				Playlist = await _client.GetPlaylistAsync(id);
+				if (YoutubeClient.ValidatePlaylistId(Query) || YoutubeClient.TryParsePlaylistId(Query, out tryId))
+				{
+					Status = $"Working on playlist [{tryId ?? id}]...";
+					Playlist = await _client.GetPlaylistAsync(tryId ?? id);
+				}
+				else if (YoutubeClient.ValidateVideoId(Query) || YoutubeClient.TryParseVideoId(Query, out tryId))
+				{
+					Status = $"Working on video [{tryId ?? id}]...";
+					Video = await _client.GetVideoAsync(tryId ?? id);
+				}
+				else if (YoutubeClient.ValidateChannelId(Query) || YoutubeClient.TryParseChannelId(Query, out tryId))
+				{
+					Status = $"Working on channel [{tryId ?? id}]...";
+					Channel = await _client.GetChannelAsync(tryId ?? id);
+				}
+
+				Status = "Ready";
 			}
-			else if (YoutubeClient.ValidateVideoId(Query) || YoutubeClient.TryParseVideoId(Query, out id))
+			catch (Exception ex)
 			{
-				Status = $"Working on video [{id}]...";
-				Video = await _client.GetVideoAsync(id);
-			}
-			else if (YoutubeClient.ValidateChannelId(Query) || YoutubeClient.TryParseChannelId(Query, out id))
-			{
-				Status = $"Working on channel [{id}]...";
-				Channel = await _client.GetChannelAsync(id);
+				Status = $"Error: {ex.Message}";
 			}
 
 			// Get data
 			//MediaStreamInfos = await _client.GetVideoMediaStreamInfosAsync(videoId);
 			//ClosedCaptionTrackInfos = await _client.GetVideoClosedCaptionTrackInfosAsync(videoId);\
-
-			Status = "Ready";
 
 			IsBusy = false;
 			IsProgressIndeterminate = false;
@@ -364,83 +374,105 @@ namespace YouTubeTool.ViewModels
 
 		private async void DownloadAll()
 		{
+			if (SearchList == null || SearchList.Count == 0) return;
+
+			IsBusy = true;
+			IsProgressIndeterminate = true;
+
 			Status = $"Working on {SearchList.Count} videos";
 
 			// Work on the videos
 			Console.WriteLine();
 			foreach (var video in SearchList)
 			{
-				await DownloadSongAsync(video.Id);
+				await DownloadSongAsync(video);
 				Console.WriteLine();
 			}
+
+			IsBusy = false;
+			IsProgressIndeterminate = false;
 		}
 		#endregion
 
 		#region YouTube Song DL
-		private async Task DownloadSongPlaylistAsync(string id)
-		{
-			// Get playlist info
-			var playlist = await _client.GetPlaylistAsync(id);
-			Status = $"{playlist.Title} ({playlist.Videos.Count} videos)";
+		//private async Task DownloadSongPlaylistAsync(string id)
+		//{
+		//	// Get playlist info
+		//	var playlist = await _client.GetPlaylistAsync(id);
+		//	Status = $"{playlist.Title} ({playlist.Videos.Count} videos)";
 
-			// Work on the videos
-			Console.WriteLine();
-			foreach (var video in playlist.Videos)
-			{
-				await DownloadSongAsync(video.Id);
-				Console.WriteLine();
-			}
-		}
+		//	// Work on the videos
+		//	Console.WriteLine();
+		//	foreach (var video in playlist.Videos)
+		//	{
+		//		await DownloadSongAsync(video);
+		//		Console.WriteLine();
+		//	}
+		//}
 
-		private async Task DownloadSongAsync(string id)
-		{
-			Status = $"Working on video [{id}]...";
+		//private async Task DownloadSongAsync(string id)
+		//{
+		//	Status = $"Working on video [{id}]...";
 
-			// Get video info
-			var video = await _client.GetVideoAsync(id);
+		//	// Get video info
+		//	var video = await _client.GetVideoAsync(id);
 
-			await DownloadSongAsync(video);
-		}
+		//	await DownloadSongAsync(video);
+		//}
 
 		private async Task DownloadSongAsync(Video video)
 		{
-			var set = await _client.GetVideoMediaStreamInfosAsync(video.Id);
-			var cleanTitle = video.Title.Replace(Path.GetInvalidFileNameChars(), '_');
-			Status = $"{video.Title}";
-
-			// Get highest bitrate audio-only or highest quality mixed stream
-			var streamInfo = GetBestAudioStreamInfo(set);
-
-			// Download to temp file
-			Status = "Downloading...";
-			Directory.CreateDirectory(TempDirectoryPath);
-			var streamFileExt = streamInfo.Container.GetFileExtension();
-			var streamFilePath = Path.Combine(TempDirectoryPath, $"{Guid.NewGuid()}.{streamFileExt}");
-			await _client.DownloadMediaStreamAsync(streamInfo, streamFilePath);
-
-			// Convert to mp3
-			Status = "Converting...";
-			Directory.CreateDirectory(OutputDirectoryPath);
-			var outputFilePath = Path.Combine(OutputDirectoryPath, $"{cleanTitle}.mp3");
-			await FfmpegCli.ExecuteAsync($"-i \"{streamFilePath}\" -q:a 0 -map a \"{outputFilePath}\" -y");
-
-			// Delete temp file
-			Status = "Deleting temp file...";
-			File.Delete(streamFilePath);
-
-			// Edit mp3 metadata
-			Status = "Writing metadata...";
-			var idMatch = Regex.Match(video.Title, @"^(?<artist>.*?)-(?<title>.*?)$");
-			var artist = idMatch.Groups["artist"].Value.Trim();
-			var title = idMatch.Groups["title"].Value.Trim();
-			using (var meta = TagLib.File.Create(outputFilePath))
+			try
 			{
-				meta.Tag.Performers = new[] { artist };
-				meta.Tag.Title = title;
-				meta.Save();
-			}
+				Status = $"Working on video [{video.Title}]...";
 
-			Status = $"Downloaded and converted video [{video.Id}] to [{outputFilePath}]";
+				var set = await _client.GetVideoMediaStreamInfosAsync(video.Id);
+				var cleanTitle = video.Title.Replace(Path.GetInvalidFileNameChars(), '_');
+
+				// Get highest bitrate audio-only or highest quality mixed stream
+				var streamInfo = GetBestAudioStreamInfo(set);
+
+				// Download to temp file
+				Status = $"Downloading [{video.Title}]...";
+
+				IsProgressIndeterminate = false;
+				var progressHandler = new Progress<double>(p => Progress = p);
+
+				Directory.CreateDirectory(TempDirectoryPath);
+				var streamFileExt = streamInfo.Container.GetFileExtension();
+				var streamFilePath = Path.Combine(TempDirectoryPath, $"{Guid.NewGuid()}.{streamFileExt}");
+				await _client.DownloadMediaStreamAsync(streamInfo, streamFilePath, progressHandler);
+
+				IsProgressIndeterminate = true;
+
+				// Convert to mp3
+				Status = $"Converting [{video.Title}]...";
+				Directory.CreateDirectory(OutputDirectoryPath);
+				var outputFilePath = Path.Combine(OutputDirectoryPath, $"{cleanTitle}.mp3");
+				await FfmpegCli.ExecuteAsync($"-i \"{streamFilePath}\" -q:a 0 -map a \"{outputFilePath}\" -y");
+
+				// Delete temp file
+				Status = "Deleting temp file...";
+				File.Delete(streamFilePath);
+
+				// Edit mp3 metadata
+				Status = "Writing metadata...";
+				var idMatch = Regex.Match(video.Title, @"^(?<artist>.*?)-(?<title>.*?)$");
+				var artist = idMatch.Groups["artist"].Value.Trim();
+				var title = idMatch.Groups["title"].Value.Trim();
+				using (var meta = TagLib.File.Create(outputFilePath))
+				{
+					meta.Tag.Performers = new[] { artist };
+					meta.Tag.Title = title;
+					meta.Save();
+				}
+
+				Status = $"Downloaded and converted video [{video.Id}] to [{outputFilePath}]";
+			}
+			catch (Exception ex)
+			{
+				Status = $"Error: {ex.Message}";
+			}
 		}
 
 		private static MediaStreamInfo GetBestAudioStreamInfo(MediaStreamInfoSet set)
@@ -454,81 +486,99 @@ namespace YouTubeTool.ViewModels
 		#endregion
 
 		#region YouTube Video DL
-		private async Task DownloadVideoAsync(string id)
-		{
-			Status = $"Working on video [{id}]...";
+		//private async Task DownloadVideoAsync(string id)
+		//{
+		//	Status = $"Working on video [{id}]...";
 
-			// Get video info
-			var video = await _client.GetVideoAsync(id);
+		//	// Get video info
+		//	var video = await _client.GetVideoAsync(id);
 
-			await DownloadVideoAsync(video);
-		}
+		//	await DownloadVideoAsync(video);
+		//}
 
 		private async Task DownloadVideoAsync(Video video)
 		{
-			var cleanTitle = video.Title.Replace(Path.GetInvalidFileNameChars(), '_');
-			Status = $"{video.Title}";
+			try
+			{
+				Status = $"Working on video [{video.Title}]...";
 
-			// Get best streams
-			var streamInfoSet = await _client.GetVideoMediaStreamInfosAsync(video.Id);
-			var videoStreamInfo = streamInfoSet.Video.WithHighestVideoQuality();
-			var audioStreamInfo = streamInfoSet.Audio.WithHighestBitrate();
+				var cleanTitle = video.Title.Replace(Path.GetInvalidFileNameChars(), '_');
 
-			// Download streams
-			Status = "Downloading...";
-			Directory.CreateDirectory(TempDirectoryPath);
-			var videoStreamFileExt = videoStreamInfo.Container.GetFileExtension();
-			var videoStreamFilePath = Path.Combine(TempDirectoryPath, $"VID-{Guid.NewGuid()}.{videoStreamFileExt}");
-			await _client.DownloadMediaStreamAsync(videoStreamInfo, videoStreamFilePath);
-			var audioStreamFileExt = audioStreamInfo.Container.GetFileExtension();
-			var audioStreamFilePath = Path.Combine(TempDirectoryPath, $"AUD-{Guid.NewGuid()}.{audioStreamFileExt}");
-			await _client.DownloadMediaStreamAsync(audioStreamInfo, audioStreamFilePath);
+				// Get best streams
+				var streamInfoSet = await _client.GetVideoMediaStreamInfosAsync(video.Id);
+				var videoStreamInfo = streamInfoSet.Video.WithHighestVideoQuality();
+				var audioStreamInfo = streamInfoSet.Audio.WithHighestBitrate();
 
-			// Mux streams
-			Status = "Combining...";
-			Directory.CreateDirectory(OutputDirectoryPath);
-			var outputFilePath = Path.Combine(OutputDirectoryPath, $"{cleanTitle}.mp4");
-			await FfmpegCli.ExecuteAsync($"-i \"{videoStreamFilePath}\" -i \"{audioStreamFilePath}\" -shortest \"{outputFilePath}\" -y");
+				// Download streams
+				IsProgressIndeterminate = false;
+				var progressHandler = new Progress<double>(p => Progress = p);
 
-			// Delete temp files
-			Status = "Deleting temp files...";
-			File.Delete(videoStreamFilePath);
-			File.Delete(audioStreamFilePath);
+				Status = $"Downloading [{video.Title}]...";
+				Directory.CreateDirectory(TempDirectoryPath);
+				var videoStreamFileExt = videoStreamInfo.Container.GetFileExtension();
+				var videoStreamFilePath = Path.Combine(TempDirectoryPath, $"VID-{Guid.NewGuid()}.{videoStreamFileExt}");
+				await _client.DownloadMediaStreamAsync(videoStreamInfo, videoStreamFilePath, progressHandler);
 
-			Status = $"Downloaded video [{video.Id}] to [{outputFilePath}]";
+				Progress = 0;
+
+				var audioStreamFileExt = audioStreamInfo.Container.GetFileExtension();
+				var audioStreamFilePath = Path.Combine(TempDirectoryPath, $"AUD-{Guid.NewGuid()}.{audioStreamFileExt}");
+				await _client.DownloadMediaStreamAsync(audioStreamInfo, audioStreamFilePath, progressHandler);
+
+				IsProgressIndeterminate = true;
+
+				// Mux streams
+				Status = "Combining...";
+				Directory.CreateDirectory(OutputDirectoryPath);
+				var outputFilePath = Path.Combine(OutputDirectoryPath, $"{cleanTitle}.mp4");
+				await FfmpegCli.ExecuteAsync($"-i \"{videoStreamFilePath}\" -i \"{audioStreamFilePath}\" -shortest \"{outputFilePath}\" -y");
+
+				// Delete temp files
+				Status = "Deleting temp files...";
+				File.Delete(videoStreamFilePath);
+				File.Delete(audioStreamFilePath);
+
+				Status = $"Downloaded video [{video.Id}] to [{outputFilePath}]";
+			}
+			catch (Exception ex)
+			{
+				Status = $"Error: {ex.Message}";
+			}
 		}
 		#endregion
 
 		#region Commands
 		private async void DownloadSong(Video o)
 		{
-			await DownloadSongAsync(o.Id);
+			IsBusy = true;
+			IsProgressIndeterminate = true;
+
+			await DownloadSongAsync(o);
 
 			Status = "Ready";
+
+			IsBusy = false;
+			IsProgressIndeterminate = false;
+			Progress = 0;
 		}
 
 		private async void DownloadVideo(Video o)
 		{
-			await DownloadVideoAsync(o.Id);
+			IsBusy = true;
+			IsProgressIndeterminate = true;
+
+			await DownloadVideoAsync(o);
 
 			Status = "Ready";
+
+			IsBusy = false;
+			IsProgressIndeterminate = false;
+			Progress = 0;
 		}
 
-		private async void ShowSettings()
-		{
-			var view = new SettingsDialog();
+		private async void ShowSettings() => await DialogHost.Show(new SettingsDialog(), "RootDialog");
 
-			//show the dialog
-			var result = await DialogHost.Show(view, "RootDialog");
-		}
-
-		private async void ShowAbout()
-		{
-			var view = new AboutDialog();
-
-			//show the dialog
-			var result = await DialogHost.Show(view, "RootDialog");
-		}
+		private async void ShowAbout() => await DialogHost.Show(new AboutDialog(), "RootDialog");
 		#endregion
 	}
 }
