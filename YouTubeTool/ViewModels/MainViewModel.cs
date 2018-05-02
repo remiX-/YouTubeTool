@@ -212,6 +212,7 @@ namespace YouTubeTool.ViewModels
 		public RelayCommand ShowAboutCommand { get; }
 
 		public RelayCommand ViewLoadedCommand { get; }
+		public RelayCommand ViewClosedCommand { get; }
 		public RelayCommand ViewSizeChangedCommand { get; }
 		#endregion
 		#endregion
@@ -251,6 +252,7 @@ namespace YouTubeTool.ViewModels
 			ShowAboutCommand = new RelayCommand(ShowAbout);
 
 			ViewLoadedCommand = new RelayCommand(ViewLoaded);
+			ViewClosedCommand = new RelayCommand(ViewClosed);
 			ViewSizeChangedCommand = new RelayCommand(ViewSizeChanged);
 		}
 
@@ -260,8 +262,8 @@ namespace YouTubeTool.ViewModels
 			_settingsService.Load();
 
 			// Vars
-			Query = "Sa0c1VGoiyc";
-			Query = "https://www.youtube.com/playlist?list=PLyiJecar_vAhAQNqZtbSfCLH-LpUeBnxh";
+			//Query = "Sa0c1VGoiyc";
+			//Query = "https://www.youtube.com/playlist?list=PLyiJecar_vAhAQNqZtbSfCLH-LpUeBnxh";
 			X = _settingsService.WindowSettings.X;
 			Y = _settingsService.WindowSettings.Y;
 			Width = _settingsService.WindowSettings.Width;
