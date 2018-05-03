@@ -19,7 +19,7 @@ namespace YouTubeTool.Services
 		{
 			_settingsService = settingsService;
 
-			_manager = new UpdateManager(new GithubPackageResolver("remiX-", "YouTube-tool", "YouTubeTool.zip"), new ZipPackageExtractor());
+			_manager = new UpdateManager(new GithubPackageResolver("remiX-", "YouTubeTool", "YouTubeTool.zip"), new ZipPackageExtractor());
 		}
 
 		public async Task<Version> CheckForUpdateAsync()
