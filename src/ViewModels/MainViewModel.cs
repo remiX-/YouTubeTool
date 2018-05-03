@@ -227,7 +227,7 @@ namespace YouTubeTool.ViewModels
 			// Default vars
 			MyTitle = "YouTube";
 			Status = "Ready";
-			Product = $"Made by {AppGlobal.AssemblyCompany} v{AppGlobal.AssemblyVersion}";
+			Product = $"Made by {AppGlobal.AssemblyCompany} v{AppGlobal.AssemblyVersion.SubstringUntilLast(".")}";
 			WindowState = WindowState.Minimized;
 
 			AppMenu = new[]

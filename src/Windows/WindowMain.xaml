@@ -2,7 +2,9 @@
 		xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 		xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
 		xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+		xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+		xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 		xmlns:explodeModels="clr-namespace:YoutubeExplode.Models;assembly=YoutubeExplode"
 		xmlns:viewModels="clr-namespace:YouTubeTool.ViewModels"
 		xmlns:views="clr-namespace:YouTubeTool.Views"
@@ -14,7 +16,9 @@
 		WindowStartupLocation="CenterScreen"
 		WindowState="{Binding WindowState, Mode=TwoWay}"
 		Left="{Binding X, Mode=TwoWay}" Top="{Binding Y, Mode=TwoWay}"
-		Width="{Binding Width, Mode=TwoWay}" Height="{Binding Height, Mode=TwoWay}" MinWidth="1024" MinHeight="576">
+		Width="{Binding Width, Mode=TwoWay}" Height="{Binding Height, Mode=TwoWay}" MinWidth="1024" MinHeight="576"
+		mc:Ignorable="d"
+		d:DesignWidth="1024" d:DesignHeight="576">
 	<i:Interaction.Triggers>
 		<i:EventTrigger EventName="Loaded">
 			<i:InvokeCommandAction Command="{Binding ViewLoadedCommand}" />
@@ -137,45 +141,47 @@
 					</Grid.ColumnDefinitions>
 
 					<!--  Video list  -->
-					<DockPanel Grid.Column="0"
-							   Margin="16"
-							   Visibility="{Binding IsDataAvailable, Converter={StaticResource BoolToVisibilityConverter}}">
-						<Button DockPanel.Dock="Top"
+					<materialDesign:Card VerticalAlignment="Stretch"
+										 Margin="8"
+										 Visibility="{Binding IsDataAvailable, Converter={StaticResource BoolToVisibilityConverter}}">
+						<DockPanel Grid.Column="0">
+							<Button DockPanel.Dock="Top"
 								Margin="6"
 								ToolTip="Download All"
 								Command="{Binding DownloadAllCommand}"
 								Style="{DynamicResource MaterialDesignFlatButton}">
-							<StackPanel Orientation="Horizontal">
-								<materialDesign:PackIcon Kind="Download" Margin="0 0 6px 0" />
-								<TextBlock Text="Download all as mp3" />
-							</StackPanel>
-						</Button>
+								<StackPanel Orientation="Horizontal">
+									<materialDesign:PackIcon Kind="Download" Margin="0 0 6px 0" />
+									<TextBlock Text="Download all as mp3" />
+								</StackPanel>
+							</Button>
 
-						<ListBox Grid.Column="0"
+							<ListBox Grid.Column="0"
 								 x:Name="VideoList"
 								 Margin="0 8 0 0"
 								 ItemsSource="{Binding SearchList}">
-							<ListBox.ItemTemplate>
-								<DataTemplate DataType="explodeModels:Video">
-									<StackPanel Margin="8" Orientation="Horizontal">
-										<!--<Rectangle Grid.Column="0"
-											   Width="6"
-											   Fill="{DynamicResource SecondaryAccentBrush}"
-											   Visibility="{Binding IsSelected, Converter={StaticResource BoolToVisibilityConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListBoxItem}}" />-->
+								<ListBox.ItemTemplate>
+									<DataTemplate DataType="explodeModels:Video">
+										<StackPanel Orientation="Horizontal">
+											<Rectangle Grid.Column="0"
+													   Width="6"
+													   Fill="{DynamicResource SecondaryAccentBrush}"
+													   Visibility="{Binding IsSelected, Converter={StaticResource BoolToVisibilityConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListBoxItem}}" />
 
-										<!--  Author image  -->
-										<Image Height="50"
-										   VerticalAlignment="Top"
-										   Source="{Binding Thumbnails.LowResUrl}" />
+											<!--  Thumbnail image  -->
+											<Image Height="50"
+												   Margin="12px 6px"
+												   VerticalAlignment="Top"
+												   Source="{Binding Thumbnails.LowResUrl}" />
 
-										<TextBlock Text="{Binding Title}"
-											   Margin="16 0 0 0"
-											   VerticalAlignment="Center" />
-									</StackPanel>
-								</DataTemplate>
-							</ListBox.ItemTemplate>
-						</ListBox>
-					</DockPanel>
+											<TextBlock Text="{Binding Title}"
+													   VerticalAlignment="Center" />
+										</StackPanel>
+									</DataTemplate>
+								</ListBox.ItemTemplate>
+							</ListBox>
+						</DockPanel>
+					</materialDesign:Card>
 
 					<!--  Video info  -->
 					<views:VideoCard Grid.Column="1"
