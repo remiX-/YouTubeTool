@@ -2,6 +2,7 @@
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.CommandWpf;
 using MaterialDesignThemes.Wpf;
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -36,8 +37,6 @@ namespace YouTubeTool.ViewModels
 		private string OutputDirectoryPath => Path.Combine(_settingsService.OutputFolder.NullIfBlank() ?? Directory.GetCurrentDirectory(), "output");
 
 		#region Fields
-		//private bool isResizing;
-
 		private double x;
 		private double y;
 		private double width;
@@ -52,24 +51,18 @@ namespace YouTubeTool.ViewModels
 
 		private bool _isBusy;
 		private string _query;
+
 		private Playlist _playlist;
 		private Video _video;
 		private Channel _channel;
+
+		private MediaStreamInfoSet _mediaStreamInfos;
+
 		private double _progress;
 		private bool _isProgressIndeterminate;
 		#endregion
 
 		#region Properties
-		//public bool IsResizing
-		//{
-		//	get => isResizing;
-		//	set
-		//	{
-		//		Set(ref isResizing, value);
-		//		RaisePropertyChanged(() => IsPlaylistDataAvailable);
-		//	}
-		//}
-
 		public double X
 		{
 			get => x;
@@ -158,7 +151,6 @@ namespace YouTubeTool.ViewModels
 				if (_playlist == null) return;
 
 				SearchList = _playlist.Videos.ToList();
-				RaisePropertyChanged(() => IsDataAvailable);
 			}
 		}
 
@@ -168,11 +160,6 @@ namespace YouTubeTool.ViewModels
 			private set
 			{
 				Set(ref _video, value);
-
-				if (_video == null) return;
-
-				SearchList = new List<Video> { _video };
-				RaisePropertyChanged(() => IsDataAvailable);
 			}
 		}
 
@@ -186,7 +173,18 @@ namespace YouTubeTool.ViewModels
 			}
 		}
 
-		public bool IsDataAvailable => SearchList != null && SearchList.Count > 0;
+		public MediaStreamInfoSet MediaStreamInfos
+		{
+			get => _mediaStreamInfos;
+			private set
+			{
+				Set(ref _mediaStreamInfos, value);
+				RaisePropertyChanged(() => IsMediaStreamDataAvailable);
+			}
+		}
+
+		public bool IsDataAvailable => SearchList != null && SearchList.Count > 0;	
+		public bool IsMediaStreamDataAvailable => MediaStreamInfos != null;
 
 		public double Progress
 		{
@@ -203,6 +201,8 @@ namespace YouTubeTool.ViewModels
 
 		#region Commands
 		public RelayCommand GetDataCommand { get; }
+		public RelayCommand<MediaStreamInfo> DownloadMediaStreamCommand { get; }
+
 		public RelayCommand<Video> DownloadSongCommand { get; }
 		public RelayCommand<Video> DownloadVideoCommand { get; }
 
@@ -211,9 +211,10 @@ namespace YouTubeTool.ViewModels
 		public RelayCommand ShowSettingsCommand { get; }
 		public RelayCommand ShowAboutCommand { get; }
 
+		public RelayCommand<Video> SelectionChangedCommand { get; }
+
 		public RelayCommand ViewLoadedCommand { get; }
 		public RelayCommand ViewClosedCommand { get; }
-		public RelayCommand ViewSizeChangedCommand { get; }
 		#endregion
 		#endregion
 
@@ -243,6 +244,8 @@ namespace YouTubeTool.ViewModels
 
 			// Commands
 			GetDataCommand = new RelayCommand(GetData, () => !IsBusy && Query.IsNotBlank());
+			DownloadMediaStreamCommand = new RelayCommand<MediaStreamInfo>(DownloadMediaStream, _ => !IsBusy);
+
 			DownloadSongCommand = new RelayCommand<Video>(o => DownloadSong(o), _ => !IsBusy);
 			DownloadVideoCommand = new RelayCommand<Video>(o => DownloadVideo(o), _ => !IsBusy);
 
@@ -251,9 +254,12 @@ namespace YouTubeTool.ViewModels
 			ShowSettingsCommand = new RelayCommand(ShowSettings);
 			ShowAboutCommand = new RelayCommand(ShowAbout);
 
+			// ListBox Events
+			SelectionChangedCommand = new RelayCommand<Video>(o => SelectionChanged(o), _ => !IsBusy);
+
+			// Window Events
 			ViewLoadedCommand = new RelayCommand(ViewLoaded);
 			ViewClosedCommand = new RelayCommand(ViewClosed);
-			ViewSizeChangedCommand = new RelayCommand(ViewSizeChanged);
 		}
 
 		private async void ViewLoaded()
@@ -263,7 +269,7 @@ namespace YouTubeTool.ViewModels
 
 			// Vars
 			//Query = "Sa0c1VGoiyc";
-			//Query = "https://www.youtube.com/playlist?list=PLyiJecar_vAhAQNqZtbSfCLH-LpUeBnxh";
+			Query = "https://www.youtube.com/playlist?list=PLyiJecar_vAhAQNqZtbSfCLH-LpUeBnxh";
 			X = _settingsService.WindowSettings.X;
 			Y = _settingsService.WindowSettings.Y;
 			Width = _settingsService.WindowSettings.Width;
@@ -311,11 +317,6 @@ namespace YouTubeTool.ViewModels
 			_updateService.FinalizeUpdate();
 		}
 
-		private void ViewSizeChanged()
-		{
-			//IsResizing = true;
-		}
-
 		public void UpdateWindowState()
 		{
 			WindowState = _settingsService.WindowSettings.Maximized ? WindowState.Maximized : WindowState.Normal;
@@ -332,10 +333,7 @@ namespace YouTubeTool.ViewModels
 			SearchList = null;
 
 			Playlist = null;
-			Video = null;
 			Channel = null;
-			//MediaStreamInfos = null;
-			//ClosedCaptionTrackInfos = null;
 
 			var id = Query;
 			var tryId = Query;
@@ -351,7 +349,9 @@ namespace YouTubeTool.ViewModels
 				else if (YoutubeClient.ValidateVideoId(Query) || YoutubeClient.TryParseVideoId(Query, out tryId))
 				{
 					Status = $"Working on video [{tryId ?? id}]...";
-					Video = await _client.GetVideoAsync(tryId ?? id);
+					var video = await _client.GetVideoAsync(tryId ?? id);
+
+					SearchList = new List<Video> { video };
 				}
 				else if (YoutubeClient.ValidateChannelId(Query) || YoutubeClient.TryParseChannelId(Query, out tryId))
 				{
@@ -365,10 +365,6 @@ namespace YouTubeTool.ViewModels
 			{
 				Status = $"Error: {ex.Message}";
 			}
-
-			// Get data
-			//MediaStreamInfos = await _client.GetVideoMediaStreamInfosAsync(videoId);
-			//ClosedCaptionTrackInfos = await _client.GetVideoClosedCaptionTrackInfosAsync(videoId);\
 
 			IsBusy = false;
 			IsProgressIndeterminate = false;
@@ -397,31 +393,6 @@ namespace YouTubeTool.ViewModels
 		#endregion
 
 		#region YouTube Song DL
-		//private async Task DownloadSongPlaylistAsync(string id)
-		//{
-		//	// Get playlist info
-		//	var playlist = await _client.GetPlaylistAsync(id);
-		//	Status = $"{playlist.Title} ({playlist.Videos.Count} videos)";
-
-		//	// Work on the videos
-		//	Console.WriteLine();
-		//	foreach (var video in playlist.Videos)
-		//	{
-		//		await DownloadSongAsync(video);
-		//		Console.WriteLine();
-		//	}
-		//}
-
-		//private async Task DownloadSongAsync(string id)
-		//{
-		//	Status = $"Working on video [{id}]...";
-
-		//	// Get video info
-		//	var video = await _client.GetVideoAsync(id);
-
-		//	await DownloadSongAsync(video);
-		//}
-
 		private async Task DownloadSongAsync(Video video)
 		{
 			try
@@ -550,6 +521,36 @@ namespace YouTubeTool.ViewModels
 		#endregion
 
 		#region Commands
+		private async void SelectionChanged(Video o)
+		{
+			IsBusy = true;
+
+			Video = o;
+			MediaStreamInfos = null;
+
+			MediaStreamInfos = await _client.GetVideoMediaStreamInfosAsync(o.Id);
+
+			IsBusy = false;
+		}
+
+		private async void DownloadMediaStream(MediaStreamInfo info)
+		{
+			// Create dialog
+			var fileExt = info.Container.GetFileExtension();
+			var defaultFileName = $"{Video.Title}.{fileExt}".Replace(Path.GetInvalidFileNameChars(), '_');
+			var outputFilePath = Path.Combine(OutputDirectoryPath, defaultFileName);
+
+			// Download to file
+			IsBusy = true;
+			Progress = 0;
+
+			var progressHandler = new Progress<double>(p => Progress = p);
+			await _client.DownloadMediaStreamAsync(info, outputFilePath, progressHandler);
+
+			IsBusy = false;
+			Progress = 0;
+		}
+
 		private async void DownloadSong(Video o)
 		{
 			IsBusy = true;
