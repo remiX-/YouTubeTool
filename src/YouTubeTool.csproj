@@ -163,6 +163,7 @@
     <Compile Include="Services\IUpdateService.cs" />
     <Compile Include="Services\SettingsService.cs" />
     <Compile Include="Services\UpdateService.cs" />
+    <Compile Include="Utils\Converters\FileSizeToStringConverter.cs" />
     <Compile Include="Utils\Converters\NullToVisibilityConverter.cs" />
     <Compile Include="Utils\Converters\BoolToVisibilityConverter.cs" />
     <Compile Include="Utils\Messages\ShowNotificationMessage.cs" />

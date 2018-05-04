@@ -57,6 +57,7 @@
 			<!--  Converters  -->
 			<converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
 			<converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
+			<converters:FileSizeToStringConverter x:Key="FileSizeToStringConverter" />
 
 			<!--  Locator  -->
 			<core:Locator x:Key="Locator" />
