@@ -26,9 +26,6 @@
 		<i:EventTrigger EventName="Closed">
 			<i:InvokeCommandAction Command="{Binding ViewClosedCommand}" />
 		</i:EventTrigger>
-		<i:EventTrigger EventName="SizeChanged">
-			<i:InvokeCommandAction Command="{Binding ViewSizeChangedCommand}" />
-		</i:EventTrigger>
 	</i:Interaction.Triggers>
 
 	<materialDesign:DialogHost Identifier="RootDialog" SnackbarMessageQueue="{Binding ElementName=MainSnackbar, Path=MessageQueue}">
@@ -157,9 +154,15 @@
 							</Button>
 
 							<ListBox Grid.Column="0"
-								 x:Name="VideoList"
-								 Margin="0 8 0 0"
-								 ItemsSource="{Binding SearchList}">
+									 x:Name="VideoList"
+									 Margin="0 8 0 0"
+									 ItemsSource="{Binding SearchList}">
+								<i:Interaction.Triggers>
+									<i:EventTrigger EventName="SelectionChanged">
+										<i:InvokeCommandAction Command="{Binding MainViewModel.SelectionChangedCommand, Source={StaticResource Locator}}"
+															   CommandParameter="{Binding ElementName=VideoList, Path=SelectedItem}"/>
+									</i:EventTrigger>
+								</i:Interaction.Triggers>
 								<ListBox.ItemTemplate>
 									<DataTemplate DataType="explodeModels:Video">
 										<StackPanel Orientation="Horizontal">
