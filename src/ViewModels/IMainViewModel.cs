@@ -1,4 +1,5 @@
 ﻿using GalaSoft.MvvmLight.CommandWpf;
+using System.Collections.Generic;
 using System.Windows;
 using YoutubeExplode.Models;
 using YoutubeExplode.Models.MediaStreams;
@@ -18,29 +19,38 @@ namespace YouTubeTool.ViewModels
 		string Product { get; }
 
 		bool IsBusy { get; }
-		string Query { get; set; }
+		string Query { get; }
+
+		List<Video> SearchList { get; }
 
 		Playlist Playlist { get; }
 		Video Video { get; }
-		Channel Channel { get; }
 		MediaStreamInfoSet MediaStreamInfos { get; }
 
-		bool IsDataAvailable { get; }
+		bool IsSearchDataAvailable { get; }
 		bool IsMediaStreamDataAvailable { get; }
 
 		double Progress { get; }
 		bool IsProgressIndeterminate { get; }
 
+		// Core Commands
 		RelayCommand GetDataCommand { get; }
-		RelayCommand<MediaStreamInfo> DownloadMediaStreamCommand { get; }
+
+		RelayCommand DownloadAllCommand { get; }
 
 		RelayCommand<Video> DownloadSongCommand { get; }
 		RelayCommand<Video> DownloadVideoCommand { get; }
 
+		RelayCommand<MediaStreamInfo> DownloadMediaStreamCommand { get; }
+
+		// Dialog Commands
+		RelayCommand ShowSettingsCommand { get; }
+		RelayCommand ShowAboutCommand { get; }
+
+		// ListBox Events
 		RelayCommand<Video> SelectionChangedCommand { get;}
 
-		RelayCommand DownloadAllCommand { get; }
-
+		// Window Events
 		RelayCommand ViewLoadedCommand { get; }
 		RelayCommand ViewClosedCommand { get; }
 	}

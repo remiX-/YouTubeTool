@@ -2,7 +2,6 @@
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.CommandWpf;
 using MaterialDesignThemes.Wpf;
-using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -54,7 +53,6 @@ namespace YouTubeTool.ViewModels
 
 		private Playlist _playlist;
 		private Video _video;
-		private Channel _channel;
 
 		private MediaStreamInfoSet _mediaStreamInfos;
 
@@ -111,16 +109,6 @@ namespace YouTubeTool.ViewModels
 			set => Set(ref product, value);
 		}
 
-		public List<Video> SearchList
-		{
-			get => searchList;
-			set
-			{
-				Set(ref searchList, value);
-				RaisePropertyChanged(() => IsDataAvailable);
-			}
-		}
-
 		public bool IsBusy
 		{
 			get => _isBusy;
@@ -138,6 +126,16 @@ namespace YouTubeTool.ViewModels
 			{
 				Set(ref _query, value);
 				GetDataCommand.RaiseCanExecuteChanged();
+			}
+		}
+
+		public List<Video> SearchList
+		{
+			get => searchList;
+			set
+			{
+				Set(ref searchList, value);
+				RaisePropertyChanged(() => IsSearchDataAvailable);
 			}
 		}
 
@@ -163,16 +161,6 @@ namespace YouTubeTool.ViewModels
 			}
 		}
 
-		public Channel Channel
-		{
-			get => _channel;
-			private set
-			{
-				Set(ref _channel, value);
-				//RaisePropertyChanged(() => IsChannelDataAvailable);
-			}
-		}
-
 		public MediaStreamInfoSet MediaStreamInfos
 		{
 			get => _mediaStreamInfos;
@@ -183,7 +171,8 @@ namespace YouTubeTool.ViewModels
 			}
 		}
 
-		public bool IsDataAvailable => SearchList != null && SearchList.Count > 0;	
+		public bool IsSearchDataAvailable => SearchList != null && SearchList.Count > 0;
+		
 		public bool IsMediaStreamDataAvailable => MediaStreamInfos != null;
 
 		public double Progress
@@ -201,12 +190,14 @@ namespace YouTubeTool.ViewModels
 
 		#region Commands
 		public RelayCommand GetDataCommand { get; }
-		public RelayCommand<MediaStreamInfo> DownloadMediaStreamCommand { get; }
+
+		public RelayCommand DownloadAllCommand { get; }
 
 		public RelayCommand<Video> DownloadSongCommand { get; }
 		public RelayCommand<Video> DownloadVideoCommand { get; }
 
-		public RelayCommand DownloadAllCommand { get; }
+		public RelayCommand<MediaStreamInfo> DownloadMediaStreamCommand { get; }
+
 
 		public RelayCommand ShowSettingsCommand { get; }
 		public RelayCommand ShowAboutCommand { get; }
@@ -230,7 +221,6 @@ namespace YouTubeTool.ViewModels
 			Status = "Ready";
 			Product = $"Made by {AppGlobal.AssemblyCompany} v{AppGlobal.AssemblyVersion.SubstringUntilLast(".")}";
 			WindowState = WindowState.Minimized;
-
 			AppMenu = new[]
 			{
 				new HamburgerMenuItem("AddSeries", "Add Series", PackIconKind.Account),
@@ -242,15 +232,16 @@ namespace YouTubeTool.ViewModels
 			// YouTubeExplode init
 			_client = new YoutubeClient();
 
-			// Commands
+			// Core Commands
 			GetDataCommand = new RelayCommand(GetData, () => !IsBusy && Query.IsNotBlank());
-			DownloadMediaStreamCommand = new RelayCommand<MediaStreamInfo>(DownloadMediaStream, _ => !IsBusy);
 
+			DownloadAllCommand = new RelayCommand(DownloadAll, () => !IsBusy);
 			DownloadSongCommand = new RelayCommand<Video>(o => DownloadSong(o), _ => !IsBusy);
 			DownloadVideoCommand = new RelayCommand<Video>(o => DownloadVideo(o), _ => !IsBusy);
 
-			DownloadAllCommand = new RelayCommand(DownloadAll, () => !IsBusy);
+			DownloadMediaStreamCommand = new RelayCommand<MediaStreamInfo>(DownloadMediaStream, _ => !IsBusy);
 
+			// Dialog Commands
 			ShowSettingsCommand = new RelayCommand(ShowSettings);
 			ShowAboutCommand = new RelayCommand(ShowAbout);
 
@@ -333,7 +324,6 @@ namespace YouTubeTool.ViewModels
 			SearchList = null;
 
 			Playlist = null;
-			Channel = null;
 
 			var id = Query;
 			var tryId = Query;
@@ -352,11 +342,6 @@ namespace YouTubeTool.ViewModels
 					var video = await _client.GetVideoAsync(tryId ?? id);
 
 					SearchList = new List<Video> { video };
-				}
-				else if (YoutubeClient.ValidateChannelId(Query) || YoutubeClient.TryParseChannelId(Query, out tryId))
-				{
-					Status = $"Working on channel [{tryId ?? id}]...";
-					Channel = await _client.GetChannelAsync(tryId ?? id);
 				}
 
 				Status = "Ready";

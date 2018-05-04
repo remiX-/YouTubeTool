@@ -140,7 +140,7 @@
 					<!--  Video list  -->
 					<materialDesign:Card VerticalAlignment="Stretch"
 										 Margin="8"
-										 Visibility="{Binding IsDataAvailable, Converter={StaticResource BoolToVisibilityConverter}}">
+										 Visibility="{Binding IsSearchDataAvailable, Converter={StaticResource BoolToVisibilityConverter}}">
 						<DockPanel Grid.Column="0">
 							<Button DockPanel.Dock="Top"
 								Margin="6"
