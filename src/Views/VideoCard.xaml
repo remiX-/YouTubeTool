@@ -13,22 +13,22 @@
 						Margin="16"
 						Orientation="Horizontal">
 				<Button Padding="4"
-							Height="Auto"
-							Style="{DynamicResource MaterialDesignFlatAccentButton}"
-							ToolTip="Download mp3"
-							Command="{Binding MainViewModel.DownloadSongCommand, Source={StaticResource Locator}}"
-							CommandParameter="{Binding}">
+						Height="Auto"
+						Style="{DynamicResource MaterialDesignFlatAccentButton}"
+						ToolTip="Download mp3"
+						Command="{Binding MainViewModel.DownloadSongCommand, Source={StaticResource Locator}}"
+						CommandParameter="{Binding}">
 					<materialDesign:PackIcon Width="24" Height="24" Kind="FileMusic" />
 				</Button>
 
-				<Button Padding="4"
-							Height="Auto"
-							Style="{DynamicResource MaterialDesignFlatAccentButton}"
-							ToolTip="Download video"
-							Command="{Binding MainViewModel.DownloadVideoCommand, Source={StaticResource Locator}}"
-							CommandParameter="{Binding}">
+				<!--<Button Padding="4"
+						Height="Auto"
+						Style="{DynamicResource MaterialDesignFlatAccentButton}"
+						ToolTip="Download video"
+						Command="{Binding MainViewModel.DownloadVideoCommand, Source={StaticResource Locator}}"
+						CommandParameter="{Binding}">
 					<materialDesign:PackIcon Width="24" Height="24" Kind="FileVideo" />
-				</Button>
+				</Button>-->
 
 				<TextBlock Margin="6,0,0,0"
 							   FontSize="15"
@@ -40,7 +40,7 @@
 			<Grid DockPanel.Dock="Top"
 				  Background="Black">
 				<!--  Thumbnail  -->
-				<Image Height="180" Source="{Binding Thumbnails.MediumResUrl}" />
+				<Image Height="220" Source="{Binding Thumbnails.MediumResUrl}" />
 
 				<!--  Duration  -->
 				<TextBlock Margin="0,0,8,6"
@@ -53,9 +53,8 @@
 			<!--  Content  -->
 			<ScrollViewer DockPanel.Dock="Bottom" Padding="16">
 				<StackPanel>
-
 					<!--  Description  -->
-					<materialDesign:Card Margin="4,0,4,4">
+					<materialDesign:Card Margin="4,0,4,4" materialDesign:ShadowAssist.ShadowDepth="Depth3">
 						<Expander Background="{DynamicResource MaterialDesignCardBackground}">
 							<Expander.Header>
 								<StackPanel Orientation="Horizontal">
@@ -71,14 +70,14 @@
 								</StackPanel>
 							</Expander.Header>
 
-							<TextBlock Margin="16,0,16,8"
+							<TextBlock Margin="16 0 16 16"
 									   Text="{Binding Description}"
 									   TextWrapping="Wrap" />
 						</Expander>
 					</materialDesign:Card>
 
 					<!--  Media streams  -->
-					<materialDesign:Card Margin="4,0,4,4">
+					<materialDesign:Card Margin="4,0,4,4" materialDesign:ShadowAssist.ShadowDepth="Depth3">
 						<Expander Background="{DynamicResource MaterialDesignCardBackground}">
 							<Expander.Header>
 								<StackPanel Orientation="Horizontal">
@@ -94,12 +93,12 @@
 								</StackPanel>
 							</Expander.Header>
 
-							<StackPanel Orientation="Vertical">
-								<!--  Muxed  -->
-								<TextBlock Margin="16,0,16,8"
+							<StackPanel Orientation="Vertical" Margin="16 0 16 16">
+								<!--  Muxed streams  -->
+								<TextBlock Margin="0"
 										   FontSize="14"
 										   Text="Muxed streams:" />
-								<ItemsControl Margin="16 0 6 0"
+								<ItemsControl Margin="0 8"
 											  ItemsSource="{Binding MainViewModel.MediaStreamInfos.Muxed, Source={StaticResource Locator}}">
 									<ItemsControl.ItemTemplate>
 										<DataTemplate>
@@ -136,11 +135,11 @@
 									</ItemsControl.ItemTemplate>
 								</ItemsControl>
 
-								<!--  Video-only  -->
-								<TextBlock Margin="16 8 16 8"
+								<!--  Video-only streams   -->
+								<TextBlock Margin="0 0 0 0"
 										   FontSize="14"
 										   Text="Video-only streams:" />
-								<ItemsControl Margin="16 0 6 0"
+								<ItemsControl Margin="0 8"
 											  ItemsSource="{Binding MainViewModel.MediaStreamInfos.Video, Source={StaticResource Locator}}">
 									<ItemsControl.ItemTemplate>
 										<DataTemplate>
@@ -175,11 +174,11 @@
 									</ItemsControl.ItemTemplate>
 								</ItemsControl>
 
-								<!--  Audio-only  -->
-								<TextBlock Margin="16 8 16 8"
+								<!--  Audio-only streams  -->
+								<TextBlock Margin="0"
 										   FontSize="14"
 										   Text="Audio-only streams:" />
-								<ItemsControl Margin="16 0 6 8"
+								<ItemsControl Margin="0 8 0 0"
 											  ItemsSource="{Binding MainViewModel.MediaStreamInfos.Audio, Source={StaticResource Locator}}">
 									<ItemsControl.ItemTemplate>
 										<DataTemplate>
