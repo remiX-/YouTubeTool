@@ -198,7 +198,6 @@ namespace YouTubeTool.ViewModels
 
 		public RelayCommand<MediaStreamInfo> DownloadMediaStreamCommand { get; }
 
-
 		public RelayCommand ShowSettingsCommand { get; }
 		public RelayCommand ShowAboutCommand { get; }
 
@@ -299,9 +298,14 @@ namespace YouTubeTool.ViewModels
 			// Save settings
 			_settingsService.WindowSettings.X = X;
 			_settingsService.WindowSettings.Y = Y;
-			_settingsService.WindowSettings.Width = Width;
-			_settingsService.WindowSettings.Height = Height;
 			_settingsService.WindowSettings.Maximized = WindowState == WindowState.Maximized;
+
+			if (WindowState == WindowState.Normal)
+			{
+				_settingsService.WindowSettings.Width = Width;
+				_settingsService.WindowSettings.Height = Height;
+			}
+
 			_settingsService.Save();
 
 			// Finalize updates if available
