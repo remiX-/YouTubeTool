@@ -3,7 +3,6 @@ using MaterialDesignThemes.Wpf;
 using System;
 using System.Threading.Tasks;
 using System.Windows;
-using YouTubeTool.Core;
 using YouTubeTool.Utils.Messages;
 using YouTubeTool.ViewModels;
 
@@ -35,7 +34,7 @@ namespace YouTubeTool.Windows
 		{
 			MyViewModel = DataContext as MainViewModel;
 
-			await Task.Delay(100);
+			await Task.Delay(200);
 
 			Activate();
 			WindowState = WindowState.Normal;
