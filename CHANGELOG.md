@@ -1,3 +1,12 @@
+### v1.2.0 (05 May 2018)
+- Added stream info visibility & downloading
+- Fixed bug with width/height saving
+- Clean & reworked styling
+
+### v1.1.0 (04 May 2018)
+- Renamed repo
+- First tag with proper Release build ;-|
+
 ### v1.0.1 (04 May 2018)
 - Updated libs
 
