@@ -141,19 +141,39 @@
 					<materialDesign:Card VerticalAlignment="Stretch"
 										 Margin="8"
 										 Visibility="{Binding IsSearchDataAvailable, Converter={StaticResource BoolToVisibilityConverter}}">
-						<DockPanel Grid.Column="0">
-							<Button DockPanel.Dock="Top"
-								Margin="6"
-								ToolTip="Download All"
-								Command="{Binding DownloadAllCommand}"
-								Style="{DynamicResource MaterialDesignFlatButton}">
+						<Grid>
+							<Grid.RowDefinitions>
+								<RowDefinition Height="Auto" />
+								<RowDefinition />
+							</Grid.RowDefinitions>
+							<Grid.ColumnDefinitions>
+								<ColumnDefinition />
+								<ColumnDefinition />
+							</Grid.ColumnDefinitions>
+
+							<Button Grid.Row="0" Grid.Column="0"
+									Margin="6"
+									ToolTip="Download All"
+									Command="{Binding DownloadAllCommand}"
+									Style="{DynamicResource MaterialDesignFlatButton}">
 								<StackPanel Orientation="Horizontal">
 									<materialDesign:PackIcon Kind="Download" Margin="0 0 6px 0" />
 									<TextBlock Text="Download all as mp3" />
 								</StackPanel>
 							</Button>
 
-							<ListBox Grid.Column="0"
+							<Button Grid.Row="0" Grid.Column="1"
+									Margin="6"
+									ToolTip="Cancel"
+									Command="{Binding CancelCurrentTaskCommand}"
+									Style="{DynamicResource MaterialDesignFlatButton}">
+								<StackPanel Orientation="Horizontal">
+									<materialDesign:PackIcon Kind="Cancel" Margin="0 0 6px 0" />
+									<TextBlock Text="Cancel" />
+								</StackPanel>
+							</Button>
+
+							<ListBox Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
 									 x:Name="VideoList"
 									 Margin="0 8 0 0"
 									 ItemsSource="{Binding SearchList}">
@@ -183,7 +203,7 @@
 									</DataTemplate>
 								</ListBox.ItemTemplate>
 							</ListBox>
-						</DockPanel>
+						</Grid>
 					</materialDesign:Card>
 
 					<!--  Video info  -->

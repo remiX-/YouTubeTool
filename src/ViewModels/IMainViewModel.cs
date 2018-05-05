@@ -43,6 +43,8 @@ namespace YouTubeTool.ViewModels
 
 		RelayCommand<MediaStreamInfo> DownloadMediaStreamCommand { get; }
 
+		RelayCommand CancelCurrentTaskCommand { get; }
+
 		// Dialog Commands
 		RelayCommand ShowSettingsCommand { get; }
 		RelayCommand ShowAboutCommand { get; }

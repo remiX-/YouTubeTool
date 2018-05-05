@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using Tyrrrz.Extensions;
@@ -198,6 +199,8 @@ namespace YouTubeTool.ViewModels
 
 		public RelayCommand<MediaStreamInfo> DownloadMediaStreamCommand { get; }
 
+		public RelayCommand CancelCurrentTaskCommand { get; }
+
 		public RelayCommand ShowSettingsCommand { get; }
 		public RelayCommand ShowAboutCommand { get; }
 
@@ -206,6 +209,11 @@ namespace YouTubeTool.ViewModels
 		public RelayCommand ViewLoadedCommand { get; }
 		public RelayCommand ViewClosedCommand { get; }
 		#endregion
+
+		private CancellationTokenSource CancelTokenSource;
+		private CancellationToken CancelToken;
+
+		private Progress<double> AppProgressHandler;
 		#endregion
 
 		#region Window Events
@@ -231,6 +239,8 @@ namespace YouTubeTool.ViewModels
 			// YouTubeExplode init
 			_client = new YoutubeClient();
 
+			AppProgressHandler = new Progress<double>(p => Progress = p);
+
 			// Core Commands
 			GetDataCommand = new RelayCommand(GetData, () => !IsBusy && Query.IsNotBlank());
 
@@ -239,6 +249,8 @@ namespace YouTubeTool.ViewModels
 			DownloadVideoCommand = new RelayCommand<Video>(o => DownloadVideo(o), _ => !IsBusy);
 
 			DownloadMediaStreamCommand = new RelayCommand<MediaStreamInfo>(DownloadMediaStream, _ => !IsBusy);
+
+			CancelCurrentTaskCommand = new RelayCommand(CancelCurrentTask, () => IsBusy);
 
 			// Dialog Commands
 			ShowSettingsCommand = new RelayCommand(ShowSettings);
@@ -381,7 +393,7 @@ namespace YouTubeTool.ViewModels
 		}
 		#endregion
 
-		#region YouTube Song DL
+		#region Downloading
 		private async Task DownloadSongAsync(Video video)
 		{
 			try
@@ -398,12 +410,11 @@ namespace YouTubeTool.ViewModels
 				Status = $"Downloading [{video.Title}]...";
 
 				IsProgressIndeterminate = false;
-				var progressHandler = new Progress<double>(p => Progress = p);
 
 				Directory.CreateDirectory(TempDirectoryPath);
 				var streamFileExt = streamInfo.Container.GetFileExtension();
 				var streamFilePath = Path.Combine(TempDirectoryPath, $"{Guid.NewGuid()}.{streamFileExt}");
-				await _client.DownloadMediaStreamAsync(streamInfo, streamFilePath, progressHandler);
+				await _client.DownloadMediaStreamAsync(streamInfo, streamFilePath, AppProgressHandler, CancelToken);
 
 				IsProgressIndeterminate = true;
 
@@ -445,18 +456,6 @@ namespace YouTubeTool.ViewModels
 				return set.Muxed.WithHighestVideoQuality();
 			throw new Exception("No applicable media streams found for this video");
 		}
-		#endregion
-
-		#region YouTube Video DL
-		//private async Task DownloadVideoAsync(string id)
-		//{
-		//	Status = $"Working on video [{id}]...";
-
-		//	// Get video info
-		//	var video = await _client.GetVideoAsync(id);
-
-		//	await DownloadVideoAsync(video);
-		//}
 
 		private async Task DownloadVideoAsync(Video video)
 		{
@@ -473,19 +472,18 @@ namespace YouTubeTool.ViewModels
 
 				// Download streams
 				IsProgressIndeterminate = false;
-				var progressHandler = new Progress<double>(p => Progress = p);
 
 				Status = $"Downloading [{video.Title}]...";
 				Directory.CreateDirectory(TempDirectoryPath);
 				var videoStreamFileExt = videoStreamInfo.Container.GetFileExtension();
 				var videoStreamFilePath = Path.Combine(TempDirectoryPath, $"VID-{Guid.NewGuid()}.{videoStreamFileExt}");
-				await _client.DownloadMediaStreamAsync(videoStreamInfo, videoStreamFilePath, progressHandler);
+				await _client.DownloadMediaStreamAsync(videoStreamInfo, videoStreamFilePath, AppProgressHandler);
 
 				Progress = 0;
 
 				var audioStreamFileExt = audioStreamInfo.Container.GetFileExtension();
 				var audioStreamFilePath = Path.Combine(TempDirectoryPath, $"AUD-{Guid.NewGuid()}.{audioStreamFileExt}");
-				await _client.DownloadMediaStreamAsync(audioStreamInfo, audioStreamFilePath, progressHandler);
+				await _client.DownloadMediaStreamAsync(audioStreamInfo, audioStreamFilePath, AppProgressHandler);
 
 				IsProgressIndeterminate = true;
 
@@ -507,6 +505,23 @@ namespace YouTubeTool.ViewModels
 				Status = $"Error: {ex.Message}";
 			}
 		}
+
+		private async Task DownloadMediaStreamAsync(MediaStreamInfo info)
+		{
+			Directory.CreateDirectory(OutputDirectoryPath);
+			var fileExt = info.Container.GetFileExtension();
+			var defaultFileName = $"{Video.Title}.{fileExt}".Replace(Path.GetInvalidFileNameChars(), '_');
+			var outputFilePath = Path.Combine(OutputDirectoryPath, defaultFileName);
+
+			// Download to file
+			IsBusy = true;
+			Progress = 0;
+
+			await _client.DownloadMediaStreamAsync(info, outputFilePath, AppProgressHandler);
+
+			IsBusy = false;
+			Progress = 0;
+		}
 		#endregion
 
 		#region Commands
@@ -516,28 +531,9 @@ namespace YouTubeTool.ViewModels
 
 			Video = o;
 			MediaStreamInfos = null;
-
 			MediaStreamInfos = await _client.GetVideoMediaStreamInfosAsync(o.Id);
 
 			IsBusy = false;
-		}
-
-		private async void DownloadMediaStream(MediaStreamInfo info)
-		{
-			// Create dialog
-			var fileExt = info.Container.GetFileExtension();
-			var defaultFileName = $"{Video.Title}.{fileExt}".Replace(Path.GetInvalidFileNameChars(), '_');
-			var outputFilePath = Path.Combine(OutputDirectoryPath, defaultFileName);
-
-			// Download to file
-			IsBusy = true;
-			Progress = 0;
-
-			var progressHandler = new Progress<double>(p => Progress = p);
-			await _client.DownloadMediaStreamAsync(info, outputFilePath, progressHandler);
-
-			IsBusy = false;
-			Progress = 0;
 		}
 
 		private async void DownloadSong(Video o)
@@ -545,7 +541,12 @@ namespace YouTubeTool.ViewModels
 			IsBusy = true;
 			IsProgressIndeterminate = true;
 
+			CancelTokenSource = new CancellationTokenSource();
+			CancelToken = CancelTokenSource.Token;
+
 			await DownloadSongAsync(o);
+
+			CancelTokenSource.Dispose();
 
 			Status = "Ready";
 
@@ -567,6 +568,10 @@ namespace YouTubeTool.ViewModels
 			IsProgressIndeterminate = false;
 			Progress = 0;
 		}
+
+		private async void DownloadMediaStream(MediaStreamInfo info) => await DownloadMediaStreamAsync(info);
+
+		private void CancelCurrentTask() => CancelTokenSource.Cancel();
 
 		private async void ShowSettings() => await DialogHost.Show(new SettingsDialog(), "RootDialog");
 
