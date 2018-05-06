@@ -333,7 +333,7 @@ namespace YouTubeTool.ViewModels
 		#region Core
 		private async Task GetVideoData()
 		{
-			AppBusyState();
+			AppBusyState(true);
 
 			// Reset data
 			SearchList = null;
@@ -370,7 +370,7 @@ namespace YouTubeTool.ViewModels
 
 		private async Task DownloadAllAsMp3()
 		{
-			AppReadyState();
+			AppBusyState(true);
 
 			Status = $"Working on {SearchList.Count} videos";
 
@@ -387,7 +387,7 @@ namespace YouTubeTool.ViewModels
 
 		private async Task DownloadVideoAsMp3(Video video)
 		{
-			AppBusyState();
+			AppBusyState(true);
 
 			await DownloadSongAsync(video);
 
@@ -519,19 +519,17 @@ namespace YouTubeTool.ViewModels
 
 		private async Task DownloadMediaStreamAsync(MediaStreamInfo info)
 		{
+			AppBusyState();
+
 			Directory.CreateDirectory(OutputDirectoryPath);
 			var fileExt = info.Container.GetFileExtension();
 			var defaultFileName = $"{Video.Title}.{fileExt}".Replace(Path.GetInvalidFileNameChars(), '_');
 			var outputFilePath = Path.Combine(OutputDirectoryPath, defaultFileName);
 
 			// Download to file
-			IsBusy = true;
-			Progress = 0;
-
 			await _client.DownloadMediaStreamAsync(info, outputFilePath, AppProgressHandler);
 
-			IsBusy = false;
-			Progress = 0;
+			AppReadyState();
 		}
 		#endregion
 
@@ -554,7 +552,7 @@ namespace YouTubeTool.ViewModels
 
 		private async void SelectionChanged(Video video)
 		{
-			AppBusyState();
+			AppBusyState(true);
 
 			Video = video;
 			MediaStreamInfos = null;
@@ -564,10 +562,10 @@ namespace YouTubeTool.ViewModels
 		}
 		#endregion
 
-		private void AppBusyState()
+		private void AppBusyState(bool progressIndeterminate = false)
 		{
 			IsBusy = true;
-			IsProgressIndeterminate = true;
+			IsProgressIndeterminate = progressIndeterminate;
 			Progress = 0;
 
 			CancelTokenSource = new CancellationTokenSource();
