@@ -331,14 +331,12 @@ namespace YouTubeTool.ViewModels
 		#endregion
 
 		#region Core
-		private async void GetData()
+		private async Task GetVideoData()
 		{
-			IsBusy = true;
-			IsProgressIndeterminate = true;
+			AppBusyState();
 
 			// Reset data
 			SearchList = null;
-
 			Playlist = null;
 
 			var id = Query;
@@ -367,16 +365,12 @@ namespace YouTubeTool.ViewModels
 				Status = $"Error: {ex.Message}";
 			}
 
-			IsBusy = false;
-			IsProgressIndeterminate = false;
+			AppReadyState();
 		}
 
-		private async void DownloadAll()
+		private async Task DownloadAllAsMp3()
 		{
-			if (SearchList == null || SearchList.Count == 0) return;
-
-			IsBusy = true;
-			IsProgressIndeterminate = true;
+			AppReadyState();
 
 			Status = $"Working on {SearchList.Count} videos";
 
@@ -388,8 +382,25 @@ namespace YouTubeTool.ViewModels
 				Console.WriteLine();
 			}
 
-			IsBusy = false;
-			IsProgressIndeterminate = false;
+			AppReadyState();
+		}
+
+		private async Task DownloadVideoAsMp3(Video video)
+		{
+			AppBusyState();
+
+			await DownloadSongAsync(video);
+
+			AppReadyState();
+		}
+
+		private async Task DownloadVideoAsMp4(Video video)
+		{
+			AppBusyState();
+
+			await DownloadVideoAsync(video);
+
+			AppReadyState();
 		}
 		#endregion
 
@@ -525,49 +536,13 @@ namespace YouTubeTool.ViewModels
 		#endregion
 
 		#region Commands
-		private async void SelectionChanged(Video o)
-		{
-			IsBusy = true;
+		private async void GetData() => await GetVideoData();
 
-			Video = o;
-			MediaStreamInfos = null;
-			MediaStreamInfos = await _client.GetVideoMediaStreamInfosAsync(o.Id);
+		private async void DownloadAll() => await DownloadAllAsMp3();
 
-			IsBusy = false;
-		}
+		private async void DownloadSong(Video video) => await DownloadVideoAsMp3(video);
 
-		private async void DownloadSong(Video o)
-		{
-			IsBusy = true;
-			IsProgressIndeterminate = true;
-
-			CancelTokenSource = new CancellationTokenSource();
-			CancelToken = CancelTokenSource.Token;
-
-			await DownloadSongAsync(o);
-
-			CancelTokenSource.Dispose();
-
-			Status = "Ready";
-
-			IsBusy = false;
-			IsProgressIndeterminate = false;
-			Progress = 0;
-		}
-
-		private async void DownloadVideo(Video o)
-		{
-			IsBusy = true;
-			IsProgressIndeterminate = true;
-
-			await DownloadVideoAsync(o);
-
-			Status = "Ready";
-
-			IsBusy = false;
-			IsProgressIndeterminate = false;
-			Progress = 0;
-		}
+		private async void DownloadVideo(Video video) => await DownloadVideoAsMp4(video);
 
 		private async void DownloadMediaStream(MediaStreamInfo info) => await DownloadMediaStreamAsync(info);
 
@@ -576,6 +551,38 @@ namespace YouTubeTool.ViewModels
 		private async void ShowSettings() => await DialogHost.Show(new SettingsDialog(), "RootDialog");
 
 		private async void ShowAbout() => await DialogHost.Show(new AboutDialog(), "RootDialog");
+
+		private async void SelectionChanged(Video video)
+		{
+			AppBusyState();
+
+			Video = video;
+			MediaStreamInfos = null;
+			MediaStreamInfos = await _client.GetVideoMediaStreamInfosAsync(video.Id);
+
+			AppReadyState();
+		}
 		#endregion
+
+		private void AppBusyState()
+		{
+			IsBusy = true;
+			IsProgressIndeterminate = true;
+			Progress = 0;
+
+			CancelTokenSource = new CancellationTokenSource();
+			CancelToken = CancelTokenSource.Token;
+		}
+
+		private void AppReadyState()
+		{
+			CancelTokenSource.Dispose();
+
+			Status = "Ready";
+
+			IsBusy = false;
+			IsProgressIndeterminate = false;
+			Progress = 0;
+		}
 	}
 }
