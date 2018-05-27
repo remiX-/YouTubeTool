@@ -4,63 +4,51 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
+             d:DesignHeight="50" d:DesignWidth="150">
 	<Grid>
 		<Grid.ColumnDefinitions>
-			<ColumnDefinition Width="0.3*"/>
-			<ColumnDefinition Width="0.05*"/>
-			<ColumnDefinition Width="0.3*"/>
-			<ColumnDefinition Width="0.05*"/>
-			<ColumnDefinition Width="0.3*"/>
+			<ColumnDefinition Width="32*"/>
+			<ColumnDefinition Width="2*"/>
+			<ColumnDefinition Width="32*"/>
+			<ColumnDefinition Width="2*"/>
+			<ColumnDefinition Width="32*"/>
 		</Grid.ColumnDefinitions>
 
-		<Grid x:Name="hour"
-			  Focusable="True"
-			  MouseWheel="OnMouseWheel">
-			<TextBlock Text="{Binding Path=Hours, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}"
-					   TextAlignment="Center"
-					   VerticalAlignment="Center"
-					   FontSize="14" />
-		</Grid>
+		<TextBlock Grid.Column="0"
+				   x:Name="hour"
+				   MouseWheel="OnMouseWheel"
+				   Text="{Binding Path=Hours, StringFormat={}{0:d2}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}"
+				   TextAlignment="Center"
+				   VerticalAlignment="Center"
+				   FontSize="14" />
 
-		<Grid Grid.Column="1">
-			<TextBlock x:Name="sep1"
-					   VerticalAlignment="Center"
-					   TextAlignment="Center"
-					   Background="{x:Null}"
-					   FontSize="14"
-					   Text=":" />
-		</Grid>
+		<TextBlock Grid.Column="1"
+				   VerticalAlignment="Center"
+				   TextAlignment="Center"
+				   FontSize="14"
+				   Text=":" />
 
-		<Grid Grid.Column="2"
-			  x:Name="min"
-			  Focusable="True"
-			  MouseWheel="OnMouseWheel">
-			<TextBlock x:Name="ddTxt"
-					   Text="{Binding Path=Minutes, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}"
-					   TextAlignment="Center"
-					   VerticalAlignment="Center"
-					   FontSize="14" />
-		</Grid>
+		<TextBlock Grid.Column="2"
+				   x:Name="minute"
+				   MouseWheel="OnMouseWheel"
+				   Text="{Binding Path=Minutes, StringFormat={}{0:d2}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}"
+				   TextAlignment="Center"
+				   VerticalAlignment="Center"
+				   FontSize="14" />
 
-		<Grid Grid.Column="3">
-			<TextBlock x:Name="sep2"
-					   VerticalAlignment="Center"
-					   Background="{x:Null}"
-					   FontSize="14"
-					   Text=":"
-					   TextAlignment="Center"/>
-		</Grid>
+		<TextBlock Grid.Column="3"
+				   VerticalAlignment="Center"
+				   TextAlignment="Center"
+				   Background="{x:Null}"
+				   FontSize="14"
+				   Text=":" />
 
-		<Grid Grid.Column="4"
-			  x:Name="sec"
-			  Focusable="True"
-			  MouseWheel="OnMouseWheel">
-			<TextBlock x:Name="yyTxt"
-					   Text="{Binding Path=Seconds, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}"
-					   TextAlignment="Center"
-					   VerticalAlignment="Center"
-					   FontSize="14" />
-		</Grid>
+		<TextBlock Grid.Column="4"
+				   x:Name="second"
+				   MouseWheel="OnMouseWheel"
+				   Text="{Binding Path=Seconds, StringFormat={}{0:d2}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}"
+				   TextAlignment="Center"
+				   VerticalAlignment="Center"
+				   FontSize="14" />
 	</Grid>
 </UserControl>

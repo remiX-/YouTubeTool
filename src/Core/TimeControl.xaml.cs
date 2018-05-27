@@ -7,14 +7,16 @@ namespace YouTubeTool.Core
 {
 	public partial class TimeControl : UserControl
 	{
+		private bool _isManuallyMutating;
+
 		public int Seconds
 		{
 			get { return (int)GetValue(SecondsProperty); }
 			set { SetValue(SecondsProperty, value); }
 		}
 
-		public static readonly DependencyProperty SecondsProperty = DependencyProperty.Register("Seconds", typeof(int), typeof(TimeControl),
-		new UIPropertyMetadata(0, new PropertyChangedCallback(OnTimeChanged)));
+		public static readonly DependencyProperty SecondsProperty =
+			DependencyProperty.Register(nameof(Seconds), typeof(int), typeof(TimeControl), new FrameworkPropertyMetadata(0, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, OnTimeChanged));
 
 		public int Minutes
 		{
@@ -22,8 +24,8 @@ namespace YouTubeTool.Core
 			set { SetValue(MinutesProperty, value); }
 		}
 
-		public static readonly DependencyProperty MinutesProperty = DependencyProperty.Register("Minutes", typeof(int), typeof(TimeControl),
-		new UIPropertyMetadata(0, new PropertyChangedCallback(OnTimeChanged)));
+		public static readonly DependencyProperty MinutesProperty =
+			DependencyProperty.Register(nameof(Minutes), typeof(int), typeof(TimeControl), new FrameworkPropertyMetadata(0, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, OnTimeChanged));
 
 		public int Hours
 		{
@@ -31,8 +33,8 @@ namespace YouTubeTool.Core
 			set { SetValue(HoursProperty, value); }
 		}
 
-		public static readonly DependencyProperty HoursProperty = DependencyProperty.Register("Hours", typeof(int), typeof(TimeControl),
-		new UIPropertyMetadata(0, new PropertyChangedCallback(OnTimeChanged)));
+		public static readonly DependencyProperty HoursProperty =
+			DependencyProperty.Register(nameof(Hours), typeof(int), typeof(TimeControl), new FrameworkPropertyMetadata(0, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, OnTimeChanged));
 
 		public TimeSpan Value
 		{
@@ -40,8 +42,8 @@ namespace YouTubeTool.Core
 			set { SetValue(ValueProperty, value); }
 		}
 
-		public static readonly DependencyProperty ValueProperty = DependencyProperty.Register("Value", typeof(TimeSpan), typeof(TimeControl),
-		new UIPropertyMetadata(DateTime.Now.TimeOfDay, new PropertyChangedCallback(OnValueChanged)));
+		public static readonly DependencyProperty ValueProperty =
+			DependencyProperty.Register(nameof(Value), typeof(TimeSpan), typeof(TimeControl), new FrameworkPropertyMetadata(default(TimeSpan), FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, OnValueChanged));
 
 		public TimeControl()
 		{
@@ -50,31 +52,66 @@ namespace YouTubeTool.Core
 
 		private static void OnTimeChanged(DependencyObject obj, DependencyPropertyChangedEventArgs e)
 		{
-			TimeControl control = obj as TimeControl;
-			control.Value = new TimeSpan(control.Hours, control.Minutes, control.Seconds);
+			var control = obj as TimeControl;
+			if (control._isManuallyMutating) return;
+
+			if (control.Seconds == 60)
+			{
+				control.Seconds = 0;
+				control.Minutes++;
+			}
+			else if (control.Seconds == -1)
+			{
+				control.Seconds = 59;
+				control.Minutes--;
+			}
+
+			if (control.Minutes == 60)
+			{
+				control.Minutes = 0;
+				control.Hours++;
+			}
+			else if (control.Minutes == -1)
+			{
+				control.Minutes = 59;
+				control.Hours--;
+			}
+
+			if (control.Hours == 24 || control.Hours == -1)
+			{
+				control.Hours = 0;
+			}
+
+			control._isManuallyMutating = true;
+			control.SetCurrentValue(ValueProperty, new TimeSpan(control.Hours, control.Minutes, control.Seconds));
+			control._isManuallyMutating = false;
 		}
 
 		private static void OnValueChanged(DependencyObject obj, DependencyPropertyChangedEventArgs e)
 		{
-			TimeControl control = obj as TimeControl;
-			control.Hours = ((TimeSpan)e.NewValue).Hours;
-			control.Minutes = ((TimeSpan)e.NewValue).Minutes;
-			control.Seconds = ((TimeSpan)e.NewValue).Seconds;
+			var control = obj as TimeControl;
+			if (control._isManuallyMutating) return;
+
+			control._isManuallyMutating = true;
+			control.SetCurrentValue(HoursProperty, control.Value.Hours);
+			control.SetCurrentValue(MinutesProperty, control.Value.Minutes);
+			control.SetCurrentValue(SecondsProperty, control.Value.Seconds);
+			control._isManuallyMutating = false;
 		}
 
 		private void OnMouseWheel(object sender, MouseWheelEventArgs e)
 		{
 			bool up = e.Delta > 0;
 
-			switch (((Grid)sender).Name)
+			switch (((TextBlock)sender).Name)
 			{
 				case "hour":
 					Hours = Hours + (up ? 1 : -1);
 					break;
-				case "min":
+				case "minute":
 					Minutes = Minutes + (up ? 1 : -1);
 					break;
-				case "sec":
+				case "second":
 					Seconds = Seconds + (up ? 1 : -1);
 					break;
 				default:
