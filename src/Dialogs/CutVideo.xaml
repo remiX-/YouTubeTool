@@ -1,0 +1,79 @@
+﻿<UserControl x:Class="YouTubeTool.Dialogs.CutVideo"
+			 xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+			 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+			 xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+			 xmlns:ctrls="clr-namespace:YouTubeTool.Core"
+			 Width="400"
+			 DataContext="{Binding CutVideoViewModel, Source={StaticResource Locator}}">
+	<StackPanel Margin="16">
+		<!--  Input file -->
+		<DockPanel Margin="0 0 0 8">
+			<Button DockPanel.Dock="Right"
+					Margin="6 0 0 0"
+					Padding="8 0"
+					Height="Auto"
+					Style="{DynamicResource MaterialDesignFlatAccentButton}"
+					ToolTip="Browse folder"
+					Command="{Binding CutVideoViewModel.BrowseInputFileCommand, Source={StaticResource Locator}}">
+				<materialDesign:PackIcon Width="24" Height="24" Kind="Folder" />
+			</Button>
+			<TextBox DockPanel.Dock="Left"
+					 materialDesign:HintAssist.Hint="Input File"
+					 materialDesign:HintAssist.IsFloating="True"
+					 Text="{Binding InputFile}"
+					 IsReadOnly="True" />
+		</DockPanel>
+
+		<!--  Start/end times  -->
+		<UniformGrid Margin="0 0 0 8" Columns="2">
+			<ctrls:TimeControl Margin="0 0 8 0" Value="{Binding StartTime}" />
+			<ctrls:TimeControl Margin="8 0 0 0" Value="{Binding EndTime}" />
+			<!--<ctrls:TimeControl Hours="10" Minutes="10" Seconds="30" Value="{Binding EndTime}" />-->
+			
+			<!--<materialDesign:TimePicker Is24Hours="True"
+									   Margin="0 0 8 0"
+									   SelectedTime="{Binding StartTime}"
+									   Style="{StaticResource MaterialDesignFloatingHintTimePicker}"
+									   materialDesign:HintAssist.Hint="Start Time" />
+			<materialDesign:TimePicker Is24Hours="True"
+									   Margin="8 0 0 0"
+									   SelectedTime="{Binding EndTime}"
+									   Style="{StaticResource MaterialDesignFloatingHintTimePicker}"
+									   materialDesign:HintAssist.Hint="End Time" />-->
+		</UniformGrid>
+
+		<UniformGrid Margin="0 0 0 8" Columns="2">
+			<!--  Disable audio  -->
+			<DockPanel LastChildFill="False" Margin="0 0 8 0">
+				<TextBlock DockPanel.Dock="Left"
+						   Text="Remove Audio" />
+				<ToggleButton DockPanel.Dock="Right"
+							  IsChecked="{Binding RemoveAudio}" />
+			</DockPanel>
+
+			<!--  Disable audio  -->
+			<DockPanel LastChildFill="False" Margin="8 0 0 0">
+				<TextBlock DockPanel.Dock="Left"
+						   Text="??" />
+				<ToggleButton DockPanel.Dock="Right"
+							  IsChecked="{Binding RemoveAudio}" />
+			</DockPanel>
+		</UniformGrid>
+
+		<DockPanel LastChildFill="False">
+			<!--  Save button  -->
+			<Button DockPanel.Dock="Left"
+					Style="{DynamicResource MaterialDesignFlatButton}"
+					Content="GO"
+					Command="{Binding GoCommand}" />
+			
+			<!--  Save button  -->
+			<Button DockPanel.Dock="Right"
+					Style="{DynamicResource MaterialDesignFlatButton}"
+					Content="CANCEL"
+					Command="{x:Static materialDesign:DialogHost.CloseDialogCommand}"
+					IsCancel="True"
+					IsDefault="True" />
+		</DockPanel>
+	</StackPanel>
+</UserControl>

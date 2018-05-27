@@ -9,7 +9,8 @@ namespace YouTubeTool.Core
 	{
 		public IMainViewModel MainViewModel => Resolve<IMainViewModel>();
 		public ISettingsViewModel SettingsViewModel => Resolve<ISettingsViewModel>();
-			
+		public ICutVideoViewModel CutVideoViewModel => Resolve<ICutVideoViewModel>();
+
 		private T Resolve<T>(string key = null)
 		{
 			return ServiceLocator.Current.GetInstance<T>(key);
@@ -27,6 +28,7 @@ namespace YouTubeTool.Core
 			// View models
 			SimpleIoc.Default.Register<IMainViewModel, MainViewModel>(true);
 			SimpleIoc.Default.Register<ISettingsViewModel, SettingsViewModel>(true);
+			SimpleIoc.Default.Register<ICutVideoViewModel, CutVideoViewModel>(true);
 		}
 
 		public static void Cleanup()
