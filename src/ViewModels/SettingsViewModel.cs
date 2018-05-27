@@ -7,7 +7,7 @@ using WinForms = System.Windows.Forms;
 
 namespace YouTubeTool.ViewModels
 {
-	public class SettingsViewModel : ViewModelBase, ISettingsViewModel
+	internal class SettingsViewModel : ViewModelBase, ISettingsViewModel
 	{
 		private readonly ISettingsService _settingsService;
 

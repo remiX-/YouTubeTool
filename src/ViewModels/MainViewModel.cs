@@ -203,6 +203,7 @@ namespace YouTubeTool.ViewModels
 
 		public RelayCommand ShowSettingsCommand { get; }
 		public RelayCommand ShowAboutCommand { get; }
+		public RelayCommand ShowCutVideoCommand { get; }
 
 		public RelayCommand<Video> SelectionChangedCommand { get; }
 
@@ -255,6 +256,7 @@ namespace YouTubeTool.ViewModels
 			// Dialog Commands
 			ShowSettingsCommand = new RelayCommand(ShowSettings);
 			ShowAboutCommand = new RelayCommand(ShowAbout);
+			ShowCutVideoCommand = new RelayCommand(ShowCutVideo);
 
 			// ListBox Events
 			SelectionChangedCommand = new RelayCommand<Video>(o => SelectionChanged(o), _ => !IsBusy);
@@ -549,6 +551,8 @@ namespace YouTubeTool.ViewModels
 		private async void ShowSettings() => await DialogHost.Show(new SettingsDialog(), "RootDialog");
 
 		private async void ShowAbout() => await DialogHost.Show(new AboutDialog(), "RootDialog");
+
+		private async void ShowCutVideo() => await DialogHost.Show(new CutVideo(), "RootDialog");
 
 		private async void SelectionChanged(Video video)
 		{

@@ -95,6 +95,12 @@
 											<materialDesign:PackIcon Kind="InformationOutline" />
 										</MenuItem.Icon>
 									</MenuItem>
+									<Separator Margin="16,0" />
+									<MenuItem Header="Video Cutter" ToolTip="Shorten videos" Command="{Binding ShowCutVideoCommand}">
+										<MenuItem.Icon>
+											<materialDesign:PackIcon Kind="ContentCut" />
+										</MenuItem.Icon>
+									</MenuItem>
 								</StackPanel>
 							</materialDesign:PopupBox>
 

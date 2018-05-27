@@ -48,6 +48,7 @@ namespace YouTubeTool.ViewModels
 		// Dialog Commands
 		RelayCommand ShowSettingsCommand { get; }
 		RelayCommand ShowAboutCommand { get; }
+		RelayCommand ShowCutVideoCommand { get; }
 
 		// ListBox Events
 		RelayCommand<Video> SelectionChangedCommand { get;}
