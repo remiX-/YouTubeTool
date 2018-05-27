@@ -26,20 +26,15 @@
 
 		<!--  Start/end times  -->
 		<UniformGrid Margin="0 0 0 8" Columns="2">
-			<ctrls:TimeControl Margin="0 0 8 0" Value="{Binding StartTime}" />
-			<ctrls:TimeControl Margin="8 0 0 0" Value="{Binding EndTime}" />
-			<!--<ctrls:TimeControl Hours="10" Minutes="10" Seconds="30" Value="{Binding EndTime}" />-->
-			
-			<!--<materialDesign:TimePicker Is24Hours="True"
-									   Margin="0 0 8 0"
-									   SelectedTime="{Binding StartTime}"
-									   Style="{StaticResource MaterialDesignFloatingHintTimePicker}"
-									   materialDesign:HintAssist.Hint="Start Time" />
-			<materialDesign:TimePicker Is24Hours="True"
-									   Margin="8 0 0 0"
-									   SelectedTime="{Binding EndTime}"
-									   Style="{StaticResource MaterialDesignFloatingHintTimePicker}"
-									   materialDesign:HintAssist.Hint="End Time" />-->
+			<DockPanel DockPanel.Dock="Left" Margin="0 0 12 0">
+				<ctrls:TimeControl DockPanel.Dock="Right" Value="{Binding StartTime}" />
+				<TextBlock Text="Start" />
+			</DockPanel>
+
+			<DockPanel DockPanel.Dock="Right" Margin="12 0 0 0">
+				<ctrls:TimeControl DockPanel.Dock="Right" Value="{Binding EndTime}" />
+				<TextBlock Text="End" />
+			</DockPanel>
 		</UniformGrid>
 
 		<UniformGrid Margin="0 0 0 8" Columns="2">
