@@ -2,6 +2,7 @@
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.CommandWpf;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using Tyrrrz.Extensions;
 using YouTubeTool.Services;
@@ -20,8 +21,11 @@ namespace YouTubeTool.ViewModels
 		private string OutputDirectoryPath => Path.Combine(_settingsService.OutputFolder.NullIfBlank() ?? Directory.GetCurrentDirectory(), "output");
 
 		private string inputFile;
+
 		private TimeSpan startTime;
 		private TimeSpan endTime;
+
+		private bool removeAudio;
 
 		public string InputFile
 		{
@@ -41,6 +45,12 @@ namespace YouTubeTool.ViewModels
 			set => Set(ref endTime, value);
 		}
 
+		public bool RemoveAudio
+		{
+			get => removeAudio;
+			set => Set(ref removeAudio, value);
+		}
+
 		public RelayCommand BrowseInputFileCommand { get; }
 
 		public RelayCommand GoCommand { get; }
@@ -56,15 +66,16 @@ namespace YouTubeTool.ViewModels
 
 		private void BrowseInputFolder()
 		{
-			WinForms.OpenFileDialog fbd = new WinForms.OpenFileDialog
+			WinForms.OpenFileDialog ofd = new WinForms.OpenFileDialog
 			{
 				Multiselect = false,
 				InitialDirectory = _settingsService.OutputFolder.NullIfBlank() ?? Directory.GetCurrentDirectory()
 			};
+			ofd.InitialDirectory = @"C:\Users\remiX\Videos\nVidia Share\Rocket League";
 
-			if (fbd.ShowDialog() == WinForms.DialogResult.OK)
+			if (ofd.ShowDialog() == WinForms.DialogResult.OK)
 			{
-				InputFile = fbd.FileName;
+				InputFile = ofd.FileName;
 			}
 		}
 
@@ -74,7 +85,8 @@ namespace YouTubeTool.ViewModels
 			var extension = Path.GetExtension(InputFile).Replace(".", "");
 
 			var cleanTitle = fileName.Replace(Path.GetInvalidFileNameChars(), '_');
-			var outputFilePath = Path.Combine(OutputDirectoryPath, $"{cleanTitle}");
+			var outputTempFilePath = Path.Combine(OutputDirectoryPath, $"{cleanTitle}_temp.{extension}");
+			var outputFinalFilePath = Path.Combine(OutputDirectoryPath, $"{cleanTitle}_final.{extension}");
 
 			var duration = EndTime - StartTime;
 
@@ -84,28 +96,34 @@ namespace YouTubeTool.ViewModels
 				$"-ss {StartTime}",
 				$"-t {duration}",
 				"-c copy",
-				$"\"{outputFilePath}_temp1.{extension}\""
+				$"\"{outputTempFilePath}\""
 			};
-			var args2 = new string[]
-			{
-				$"-i \"{outputFilePath}_1.{extension}\"",
-				"-vcodec h264",
-				$"\"{outputFilePath}_temp2.{extension}\""
-			};
-			var args3 = new string[]
-			{
-				$"-i \"{outputFilePath}_2.{extension}\"",
-				"-b 8507k",
-				$"\"{outputFilePath}_final.{extension}\""
-			};
+			var argsFinal = BuildFinalArgsString($"{outputTempFilePath}", $"{outputFinalFilePath}");
 
 			MessengerInstance.Send(new ShowNotificationMessage("Starting ..."));
 
-			var q = await FfmpegCli.ExecuteAsync(args1.JoinToString(" "));
-			await FfmpegCli.ExecuteAsync(args2.JoinToString(" "));
-			await FfmpegCli.ExecuteAsync(args3.JoinToString(" "));
+			await FfmpegCli.ExecuteAsync(args1.JoinToString(" "));
+			await FfmpegCli.ExecuteAsync(argsFinal);
 
 			MessengerInstance.Send(new ShowNotificationMessage("Done !"));
+		}
+
+		private string BuildFinalArgsString(string input, string output)
+		{
+			var args = new List<string>
+			{
+				$"-i \"{input}\"",
+				"-y"
+			};
+
+			if (RemoveAudio) args.Add("-an");
+			args.Add("-r 30");
+			args.Add("-s 1280x720");
+			args.Add("-c:v libx264");
+			args.Add("-b:v 3M");
+			args.Add($"\"{output}\"");
+
+			return args.JoinToString(" ");
 		}
 	}
 }
