@@ -4,8 +4,6 @@ namespace YouTubeTool.Core
 {
 	public static class AppGlobal
 	{
-		public static AppPaths Paths = new AppPaths();
-
 		#region Assembly Attribute Accessors
 		public static string AssemblyTitle
 		{
