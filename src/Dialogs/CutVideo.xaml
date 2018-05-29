@@ -24,15 +24,33 @@
 					 IsReadOnly="True" />
 		</DockPanel>
 
+		<!--  Output file -->
+		<DockPanel Margin="0 0 0 8">
+			<Button DockPanel.Dock="Right"
+					Margin="6 0 0 0"
+					Padding="8 0"
+					Height="Auto"
+					Style="{DynamicResource MaterialDesignFlatAccentButton}"
+					ToolTip="Browse folder"
+					Command="{Binding CutVideoViewModel.BrowseOutputFileCommand, Source={StaticResource Locator}}">
+				<materialDesign:PackIcon Width="24" Height="24" Kind="Folder" />
+			</Button>
+			<TextBox DockPanel.Dock="Left"
+					 materialDesign:HintAssist.Hint="Output File"
+					 materialDesign:HintAssist.IsFloating="True"
+					 Text="{Binding Output}"
+					 IsReadOnly="True" />
+		</DockPanel>
+
 		<!--  Start/end times  -->
 		<UniformGrid Margin="0 0 0 8" Columns="2">
 			<DockPanel DockPanel.Dock="Left" Margin="0 0 12 0">
-				<ctrls:TimeControl DockPanel.Dock="Right" Value="{Binding StartTime}" />
+				<ctrls:TimePickerControl DockPanel.Dock="Right" Value="{Binding StartTime}" />
 				<TextBlock Text="Start" />
 			</DockPanel>
 
 			<DockPanel DockPanel.Dock="Right" Margin="12 0 0 0">
-				<ctrls:TimeControl DockPanel.Dock="Right" Value="{Binding EndTime}" />
+				<ctrls:TimePickerControl DockPanel.Dock="Right" Value="{Binding EndTime}" />
 				<TextBlock Text="End" />
 			</DockPanel>
 		</UniformGrid>
@@ -42,14 +60,6 @@
 			<DockPanel LastChildFill="False" Margin="0 0 8 0">
 				<TextBlock DockPanel.Dock="Left"
 						   Text="Remove Audio" />
-				<ToggleButton DockPanel.Dock="Right"
-							  IsChecked="{Binding RemoveAudio}" />
-			</DockPanel>
-
-			<!--  Disable audio  -->
-			<DockPanel LastChildFill="False" Margin="8 0 0 0">
-				<TextBlock DockPanel.Dock="Left"
-						   Text="??" />
 				<ToggleButton DockPanel.Dock="Right"
 							  IsChecked="{Binding RemoveAudio}" />
 			</DockPanel>

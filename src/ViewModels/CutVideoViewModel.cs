@@ -21,6 +21,7 @@ namespace YouTubeTool.ViewModels
 		private string OutputDirectoryPath => Path.Combine(_settingsService.OutputFolder.NullIfBlank() ?? Directory.GetCurrentDirectory(), "output");
 
 		private string inputFile;
+		private string outputFile;
 
 		private TimeSpan startTime;
 		private TimeSpan endTime;
@@ -31,6 +32,12 @@ namespace YouTubeTool.ViewModels
 		{
 			get => inputFile;
 			set => Set(ref inputFile, value);
+		}
+
+		public string OutputFile
+		{
+			get => outputFile;
+			set => Set(ref outputFile, value);
 		}
 
 		public TimeSpan StartTime
@@ -52,6 +59,7 @@ namespace YouTubeTool.ViewModels
 		}
 
 		public RelayCommand BrowseInputFileCommand { get; }
+		public RelayCommand BrowseOutputFileCommand { get; }
 
 		public RelayCommand GoCommand { get; }
 		#endregion
@@ -60,22 +68,37 @@ namespace YouTubeTool.ViewModels
 		{
 			_settingsService = settingsService;
 
-			BrowseInputFileCommand = new RelayCommand(BrowseInputFolder);
+			BrowseInputFileCommand = new RelayCommand(BrowseInputFile);
+			BrowseOutputFileCommand = new RelayCommand(BrowseOutputFile);
+
 			GoCommand = new RelayCommand(Go);
 		}
 
-		private void BrowseInputFolder()
+		private void BrowseInputFile()
 		{
 			WinForms.OpenFileDialog ofd = new WinForms.OpenFileDialog
 			{
 				Multiselect = false,
-				InitialDirectory = _settingsService.OutputFolder.NullIfBlank() ?? Directory.GetCurrentDirectory()
+				InitialDirectory = Directory.GetCurrentDirectory()
 			};
 			ofd.InitialDirectory = @"C:\Users\remiX\Videos\nVidia Share\Rocket League";
 
 			if (ofd.ShowDialog() == WinForms.DialogResult.OK)
 			{
 				InputFile = ofd.FileName;
+			}
+		}
+
+		private void BrowseOutputFile()
+		{
+			WinForms.SaveFileDialog sfd = new WinForms.SaveFileDialog
+			{
+				InitialDirectory = _settingsService.OutputFolder.NullIfBlank() ?? Directory.GetCurrentDirectory()
+			};
+
+			if (sfd.ShowDialog() == WinForms.DialogResult.OK)
+			{
+				OutputFile = sfd.FileName;
 			}
 		}
 
