@@ -122,7 +122,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Page Include="Core\TimeControl.xaml">
+    <Page Include="Core\TimePickerControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -155,10 +155,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Core\AppGlobal.cs" />
-    <Compile Include="Core\AppPaths.cs" />
     <Compile Include="Core\Locator.cs" />
-    <Compile Include="Core\TimeControl.xaml.cs">
-      <DependentUpon>TimeControl.xaml</DependentUpon>
+    <Compile Include="Core\TimePickerControl.xaml.cs">
+      <DependentUpon>TimePickerControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Dialogs\AboutDialog.xaml.cs">
       <DependentUpon>AboutDialog.xaml</DependentUpon>
@@ -169,8 +168,12 @@
     <Compile Include="Dialogs\SettingsDialog.xaml.cs">
       <DependentUpon>SettingsDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Services\ILoggerService.cs" />
+    <Compile Include="Services\IPathService.cs" />
     <Compile Include="Services\ISettingsService.cs" />
     <Compile Include="Services\IUpdateService.cs" />
+    <Compile Include="Services\LoggerService.cs" />
+    <Compile Include="Services\PathService.cs" />
     <Compile Include="Services\SettingsService.cs" />
     <Compile Include="Services\UpdateService.cs" />
     <Compile Include="Utils\Converters\FileSizeToStringConverter.cs" />

@@ -23,7 +23,9 @@ namespace YouTubeTool.Core
 
 			// Services
 			SimpleIoc.Default.Register<ISettingsService, SettingsService>();
+			SimpleIoc.Default.Register<IPathService, PathService>();
 			SimpleIoc.Default.Register<IUpdateService, UpdateService>();
+			SimpleIoc.Default.Register<ILoggerService, LoggerService>();
 
 			// View models
 			SimpleIoc.Default.Register<IMainViewModel, MainViewModel>(true);
