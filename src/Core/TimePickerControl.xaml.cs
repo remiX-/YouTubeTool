@@ -5,7 +5,7 @@ using System.Windows.Input;
 
 namespace YouTubeTool.Core
 {
-	public partial class TimeControl : UserControl
+	public partial class TimePickerControl : UserControl
 	{
 		private bool _isManuallyMutating;
 
@@ -16,7 +16,7 @@ namespace YouTubeTool.Core
 		}
 
 		public static readonly DependencyProperty SecondsProperty =
-			DependencyProperty.Register(nameof(Seconds), typeof(int), typeof(TimeControl), new FrameworkPropertyMetadata(0, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, OnTimeChanged));
+			DependencyProperty.Register(nameof(Seconds), typeof(int), typeof(TimePickerControl), new FrameworkPropertyMetadata(0, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, OnTimeChanged));
 
 		public int Minutes
 		{
@@ -25,7 +25,7 @@ namespace YouTubeTool.Core
 		}
 
 		public static readonly DependencyProperty MinutesProperty =
-			DependencyProperty.Register(nameof(Minutes), typeof(int), typeof(TimeControl), new FrameworkPropertyMetadata(0, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, OnTimeChanged));
+			DependencyProperty.Register(nameof(Minutes), typeof(int), typeof(TimePickerControl), new FrameworkPropertyMetadata(0, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, OnTimeChanged));
 
 		public int Hours
 		{
@@ -34,7 +34,7 @@ namespace YouTubeTool.Core
 		}
 
 		public static readonly DependencyProperty HoursProperty =
-			DependencyProperty.Register(nameof(Hours), typeof(int), typeof(TimeControl), new FrameworkPropertyMetadata(0, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, OnTimeChanged));
+			DependencyProperty.Register(nameof(Hours), typeof(int), typeof(TimePickerControl), new FrameworkPropertyMetadata(0, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, OnTimeChanged));
 
 		public TimeSpan Value
 		{
@@ -43,16 +43,16 @@ namespace YouTubeTool.Core
 		}
 
 		public static readonly DependencyProperty ValueProperty =
-			DependencyProperty.Register(nameof(Value), typeof(TimeSpan), typeof(TimeControl), new FrameworkPropertyMetadata(default(TimeSpan), FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, OnValueChanged));
+			DependencyProperty.Register(nameof(Value), typeof(TimeSpan), typeof(TimePickerControl), new FrameworkPropertyMetadata(default(TimeSpan), FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, OnValueChanged));
 
-		public TimeControl()
+		public TimePickerControl()
 		{
 			InitializeComponent();
 		}
 
 		private static void OnTimeChanged(DependencyObject obj, DependencyPropertyChangedEventArgs e)
 		{
-			var control = obj as TimeControl;
+			var control = obj as TimePickerControl;
 			if (control._isManuallyMutating) return;
 
 			if (control.Seconds == 60)
@@ -89,7 +89,7 @@ namespace YouTubeTool.Core
 
 		private static void OnValueChanged(DependencyObject obj, DependencyPropertyChangedEventArgs e)
 		{
-			var control = obj as TimeControl;
+			var control = obj as TimePickerControl;
 			if (control._isManuallyMutating) return;
 
 			control._isManuallyMutating = true;
