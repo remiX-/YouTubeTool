@@ -28,6 +28,7 @@ namespace YouTubeTool.ViewModels
 
 		private readonly ISettingsService _settingsService;
 		private readonly IUpdateService _updateService;
+		private readonly ILoggerService _loggerService;
 
 		private readonly Cli FfmpegCli = new Cli("ffmpeg.exe");
 
@@ -100,7 +101,15 @@ namespace YouTubeTool.ViewModels
 			set
 			{
 				Set(ref status, value);
-				Console.WriteLine(status);
+
+				if (Regex.Match(status, "^Error:").Success)
+				{
+					_loggerService.Log(status, LogType.Error);
+				}
+				else
+				{
+					_loggerService.Log(status, LogType.Information);
+				}
 			}
 		}
 
@@ -218,11 +227,12 @@ namespace YouTubeTool.ViewModels
 		#endregion
 
 		#region Window Events
-		public MainViewModel(ISettingsService settingsService, IUpdateService updateService)
+		public MainViewModel(ISettingsService settingsService, IUpdateService updateService, ILoggerService loggerService)
 		{
 			// Services
 			_settingsService = settingsService;
 			_updateService = updateService;
+			_loggerService = loggerService;
 
 			// Default vars
 			MyTitle = "YouTube";
@@ -360,14 +370,12 @@ namespace YouTubeTool.ViewModels
 					SearchList = new List<Video> { video };
 				}
 
-				Status = "Ready";
+				AppReadyState();
 			}
 			catch (Exception ex)
 			{
 				Status = $"Error: {ex.Message}";
 			}
-
-			AppReadyState();
 		}
 
 		private async Task DownloadAllAsMp3()
@@ -377,11 +385,10 @@ namespace YouTubeTool.ViewModels
 			Status = $"Working on {SearchList.Count} videos";
 
 			// Work on the videos
-			Console.WriteLine();
 			foreach (var video in SearchList)
 			{
-				await DownloadSongAsync(video);
-				Console.WriteLine();
+				var mustContinue = await DownloadSongAsync(video);
+				if (!mustContinue) break;
 			}
 
 			AppReadyState();
@@ -407,7 +414,7 @@ namespace YouTubeTool.ViewModels
 		#endregion
 
 		#region Downloading
-		private async Task DownloadSongAsync(Video video)
+		private async Task<bool> DownloadSongAsync(Video video)
 		{
 			try
 			{
@@ -454,10 +461,14 @@ namespace YouTubeTool.ViewModels
 				}
 
 				Status = $"Downloaded and converted video [{video.Id}] to [{outputFilePath}]";
+
+				return true;
 			}
 			catch (Exception ex)
 			{
 				Status = $"Error: {ex.Message}";
+
+				return false;
 			}
 		}
 
