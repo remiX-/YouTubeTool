@@ -68,6 +68,8 @@ namespace YouTubeTool.ViewModels
 		{
 			_settingsService = settingsService;
 
+			OutputFile = Path.Combine(_settingsService.OutputFolder.NullIfBlank() ?? Directory.GetCurrentDirectory(), "output");
+
 			BrowseInputFileCommand = new RelayCommand(BrowseInputFile);
 			BrowseOutputFileCommand = new RelayCommand(BrowseOutputFile);
 
