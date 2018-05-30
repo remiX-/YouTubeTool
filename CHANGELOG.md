@@ -1,3 +1,10 @@
+### v1.3.0 (30 May 2018)
+- Added ability to cancel downloads - if it is currently busy converting it will waiting until next iteration to cancel
+- Added VideoCut dialog to snip a video to a desired length
+- New custom WPF control
+- Some refactoring
+- Bug fixes
+
 ### v1.2.0 (05 May 2018)
 - Added stream info visibility & downloading
 - Fixed bug with width/height saving
