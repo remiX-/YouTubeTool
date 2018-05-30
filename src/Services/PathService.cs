@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.IO;
 using Tyrrrz.Extensions;
 using Tyrrrz.Settings;
 
@@ -19,8 +14,8 @@ namespace YouTubeTool.Services
 
 		public PathService(ISettingsService settingsService)
 		{
-			TempDirectoryPath = Path.Combine(settingsService.OutputFolder.NullIfBlank() ?? Directory.GetCurrentDirectory(), "output");
-			OutputDirectoryPath = Path.Combine(settingsService.OutputFolder.NullIfBlank() ?? Directory.GetCurrentDirectory(), "temp");
+			OutputDirectoryPath = Path.Combine(settingsService.OutputFolder.NullIfBlank() ?? Directory.GetCurrentDirectory(), "output");
+			TempDirectoryPath = Path.Combine(settingsService.OutputFolder.NullIfBlank() ?? Directory.GetCurrentDirectory(), "temp");
 
 			LogFile = Path.Combine(StorageSpace.SyncedUserDomain.GetDirectoryPath(), ".YouTubeTool", "log");
 		}
