@@ -19,5 +19,8 @@ namespace YouTubeTool.ViewModels
 		RelayCommand BrowseOutputFileCommand { get; }
 
 		RelayCommand GoCommand { get; }
+
+		// Window Events
+		RelayCommand ViewLoadedCommand { get; }
 	}
 }

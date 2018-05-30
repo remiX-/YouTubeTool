@@ -15,10 +15,9 @@ namespace YouTubeTool.ViewModels
 	{
 		#region Vars
 		private readonly ISettingsService _settingsService;
+		private readonly IPathService _pathService;
 
 		private readonly Cli FfmpegCli = new Cli("ffmpeg.exe");
-
-		private string OutputDirectoryPath => Path.Combine(_settingsService.OutputFolder.NullIfBlank() ?? Directory.GetCurrentDirectory(), "output");
 
 		private string inputFile;
 		private string outputFile;
@@ -62,18 +61,27 @@ namespace YouTubeTool.ViewModels
 		public RelayCommand BrowseOutputFileCommand { get; }
 
 		public RelayCommand GoCommand { get; }
+
+		public RelayCommand ViewLoadedCommand { get; }
 		#endregion
 
-		public CutVideoViewModel(ISettingsService settingsService)
+		public CutVideoViewModel(ISettingsService settingsService, IPathService pathService)
 		{
 			_settingsService = settingsService;
-
-			OutputFile = Path.Combine(_settingsService.OutputFolder.NullIfBlank() ?? Directory.GetCurrentDirectory(), "output");
+			_pathService = pathService;
 
 			BrowseInputFileCommand = new RelayCommand(BrowseInputFile);
 			BrowseOutputFileCommand = new RelayCommand(BrowseOutputFile);
 
 			GoCommand = new RelayCommand(Go);
+			
+			// Window Events
+			ViewLoadedCommand = new RelayCommand(ViewLoaded);
+		}
+
+		private void ViewLoaded()
+		{
+			OutputFile = _pathService.OutputDirectoryPath;
 		}
 
 		private void BrowseInputFile()
@@ -88,6 +96,7 @@ namespace YouTubeTool.ViewModels
 			if (ofd.ShowDialog() == WinForms.DialogResult.OK)
 			{
 				InputFile = ofd.FileName;
+				OutputFile = Path.Combine(_pathService.OutputDirectoryPath, Path.GetFileName(InputFile));
 			}
 		}
 
@@ -109,9 +118,11 @@ namespace YouTubeTool.ViewModels
 			var fileName = Path.GetFileNameWithoutExtension(InputFile);
 			var extension = Path.GetExtension(InputFile).Replace(".", "");
 
+
 			var cleanTitle = fileName.Replace(Path.GetInvalidFileNameChars(), '_');
-			var outputTempFilePath = Path.Combine(OutputDirectoryPath, $"{cleanTitle}_temp.{extension}");
-			var outputFinalFilePath = Path.Combine(OutputDirectoryPath, $"{cleanTitle}_final.{extension}");
+			var outputTempFilePath = Path.Combine(_pathService.OutputDirectoryPath, $"{cleanTitle}_temp.{extension}");
+
+			var outputFinalFilePath = Path.Combine(_pathService.OutputDirectoryPath, $"{cleanTitle}_final.{extension}");
 
 			var duration = EndTime - StartTime;
 

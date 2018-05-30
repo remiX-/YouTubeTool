@@ -27,15 +27,13 @@ namespace YouTubeTool.ViewModels
 		private readonly YoutubeClient _client;
 
 		private readonly ISettingsService _settingsService;
+		private readonly IPathService _pathService;
 		private readonly IUpdateService _updateService;
 		private readonly ILoggerService _loggerService;
 
 		private readonly Cli FfmpegCli = new Cli("ffmpeg.exe");
 
 		public HamburgerMenuItem[] AppMenu { get; }
-
-		private string TempDirectoryPath => Path.Combine(_settingsService.OutputFolder.NullIfBlank() ?? Directory.GetCurrentDirectory(), "temp");
-		private string OutputDirectoryPath => Path.Combine(_settingsService.OutputFolder.NullIfBlank() ?? Directory.GetCurrentDirectory(), "output");
 
 		#region Fields
 		private double x;
@@ -223,14 +221,15 @@ namespace YouTubeTool.ViewModels
 		private CancellationTokenSource CancelTokenSource;
 		private CancellationToken CancelToken;
 
-		private Progress<double> AppProgressHandler;
+		private readonly Progress<double> AppProgressHandler;
 		#endregion
 
 		#region Window Events
-		public MainViewModel(ISettingsService settingsService, IUpdateService updateService, ILoggerService loggerService)
+		public MainViewModel(ISettingsService settingsService, IPathService pathService, IUpdateService updateService, ILoggerService loggerService)
 		{
 			// Services
 			_settingsService = settingsService;
+			_pathService = pathService;
 			_updateService = updateService;
 			_loggerService = loggerService;
 
@@ -278,12 +277,9 @@ namespace YouTubeTool.ViewModels
 
 		private async void ViewLoaded()
 		{
-			// Load settings
-			_settingsService.Load();
-
 			// Vars
 			//Query = "Sa0c1VGoiyc";
-			Query = "https://www.youtube.com/playlist?list=PLyiJecar_vAhAQNqZtbSfCLH-LpUeBnxh";
+			//Query = "https://www.youtube.com/playlist?list=PLyiJecar_vAhAQNqZtbSfCLH-LpUeBnxh";
 			X = _settingsService.WindowSettings.X;
 			Y = _settingsService.WindowSettings.Y;
 			Width = _settingsService.WindowSettings.Width;
@@ -384,11 +380,14 @@ namespace YouTubeTool.ViewModels
 
 			Status = $"Working on {SearchList.Count} videos";
 
-			// Work on the videos
+			var currentIndex = 1;
 			foreach (var video in SearchList)
 			{
-				var mustContinue = await DownloadSongAsync(video);
+				if (CancelTokenSource.IsCancellationRequested) break;
+
+				var mustContinue = await DownloadSongAsync(video, currentIndex);
 				if (!mustContinue) break;
+				currentIndex++;
 			}
 
 			AppReadyState();
@@ -398,7 +397,7 @@ namespace YouTubeTool.ViewModels
 		{
 			AppBusyState(true);
 
-			await DownloadSongAsync(video);
+			await DownloadSongAsync(video, 1);
 
 			AppReadyState();
 		}
@@ -414,11 +413,11 @@ namespace YouTubeTool.ViewModels
 		#endregion
 
 		#region Downloading
-		private async Task<bool> DownloadSongAsync(Video video)
+		private async Task<bool> DownloadSongAsync(Video video, int index)
 		{
 			try
 			{
-				Status = $"Working on video [{video.Title}]...";
+				Status = $"[{index} / {SearchList.Count}] Working on video [{video.Title}]...";
 
 				var set = await _client.GetVideoMediaStreamInfosAsync(video.Id);
 				var cleanTitle = video.Title.Replace(Path.GetInvalidFileNameChars(), '_');
@@ -427,29 +426,29 @@ namespace YouTubeTool.ViewModels
 				var streamInfo = GetBestAudioStreamInfo(set);
 
 				// Download to temp file
-				Status = $"Downloading [{video.Title}]...";
+				Status = $"[{index} / {SearchList.Count}] Downloading [{video.Title}]...";
 
 				IsProgressIndeterminate = false;
 
-				Directory.CreateDirectory(TempDirectoryPath);
+				Directory.CreateDirectory(_pathService.TempDirectoryPath);
 				var streamFileExt = streamInfo.Container.GetFileExtension();
-				var streamFilePath = Path.Combine(TempDirectoryPath, $"{Guid.NewGuid()}.{streamFileExt}");
+				var streamFilePath = Path.Combine(_pathService.TempDirectoryPath, $"{Guid.NewGuid()}.{streamFileExt}");
 				await _client.DownloadMediaStreamAsync(streamInfo, streamFilePath, AppProgressHandler, CancelToken);
 
 				IsProgressIndeterminate = true;
 
 				// Convert to mp3
-				Status = $"Converting [{video.Title}]...";
-				Directory.CreateDirectory(OutputDirectoryPath);
-				var outputFilePath = Path.Combine(OutputDirectoryPath, $"{cleanTitle}.mp3");
+				Status = $"[{index} / {SearchList.Count}] Converting [{video.Title}]...";
+				Directory.CreateDirectory(_pathService.OutputDirectoryPath);
+				var outputFilePath = Path.Combine(_pathService.OutputDirectoryPath, $"{cleanTitle}.mp3");
 				await FfmpegCli.ExecuteAsync($"-i \"{streamFilePath}\" -q:a 0 -map a \"{outputFilePath}\" -y");
 
 				// Delete temp file
-				Status = "Deleting temp file...";
+				Status = "[{index} / {SearchList.Count}] Deleting temp file...";
 				File.Delete(streamFilePath);
 
 				// Edit mp3 metadata
-				Status = "Writing metadata...";
+				Status = "[{index} / {SearchList.Count}] Writing metadata...";
 				var idMatch = Regex.Match(video.Title, @"^(?<artist>.*?)-(?<title>.*?)$");
 				var artist = idMatch.Groups["artist"].Value.Trim();
 				var title = idMatch.Groups["title"].Value.Trim();
@@ -460,7 +459,7 @@ namespace YouTubeTool.ViewModels
 					meta.Save();
 				}
 
-				Status = $"Downloaded and converted video [{video.Id}] to [{outputFilePath}]";
+				Status = $"[{index} / {SearchList.Count}] Downloaded and converted video [{video.Id}] to [{outputFilePath}]";
 
 				return true;
 			}
@@ -498,23 +497,23 @@ namespace YouTubeTool.ViewModels
 				IsProgressIndeterminate = false;
 
 				Status = $"Downloading [{video.Title}]...";
-				Directory.CreateDirectory(TempDirectoryPath);
+				Directory.CreateDirectory(_pathService.TempDirectoryPath);
 				var videoStreamFileExt = videoStreamInfo.Container.GetFileExtension();
-				var videoStreamFilePath = Path.Combine(TempDirectoryPath, $"VID-{Guid.NewGuid()}.{videoStreamFileExt}");
+				var videoStreamFilePath = Path.Combine(_pathService.TempDirectoryPath, $"VID-{Guid.NewGuid()}.{videoStreamFileExt}");
 				await _client.DownloadMediaStreamAsync(videoStreamInfo, videoStreamFilePath, AppProgressHandler);
 
 				Progress = 0;
 
 				var audioStreamFileExt = audioStreamInfo.Container.GetFileExtension();
-				var audioStreamFilePath = Path.Combine(TempDirectoryPath, $"AUD-{Guid.NewGuid()}.{audioStreamFileExt}");
+				var audioStreamFilePath = Path.Combine(_pathService.TempDirectoryPath, $"AUD-{Guid.NewGuid()}.{audioStreamFileExt}");
 				await _client.DownloadMediaStreamAsync(audioStreamInfo, audioStreamFilePath, AppProgressHandler);
 
 				IsProgressIndeterminate = true;
 
 				// Mux streams
 				Status = "Combining...";
-				Directory.CreateDirectory(OutputDirectoryPath);
-				var outputFilePath = Path.Combine(OutputDirectoryPath, $"{cleanTitle}.mp4");
+				Directory.CreateDirectory(_pathService.OutputDirectoryPath);
+				var outputFilePath = Path.Combine(_pathService.OutputDirectoryPath, $"{cleanTitle}.mp4");
 				await FfmpegCli.ExecuteAsync($"-i \"{videoStreamFilePath}\" -i \"{audioStreamFilePath}\" -shortest \"{outputFilePath}\" -y");
 
 				// Delete temp files
@@ -534,10 +533,10 @@ namespace YouTubeTool.ViewModels
 		{
 			AppBusyState();
 
-			Directory.CreateDirectory(OutputDirectoryPath);
+			Directory.CreateDirectory(_pathService.OutputDirectoryPath);
 			var fileExt = info.Container.GetFileExtension();
 			var defaultFileName = $"{Video.Title}.{fileExt}".Replace(Path.GetInvalidFileNameChars(), '_');
-			var outputFilePath = Path.Combine(OutputDirectoryPath, defaultFileName);
+			var outputFilePath = Path.Combine(_pathService.OutputDirectoryPath, defaultFileName);
 
 			// Download to file
 			await _client.DownloadMediaStreamAsync(info, outputFilePath, AppProgressHandler);
