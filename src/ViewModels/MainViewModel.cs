@@ -234,7 +234,7 @@ namespace YouTubeTool.ViewModels
 			_loggerService = loggerService;
 
 			// Default vars
-			MyTitle = "YouTube";
+			MyTitle = $"YouTubeTool";
 			Status = "Ready";
 			Product = $"Made by {AppGlobal.AssemblyCompany} v{AppGlobal.AssemblyVersion.SubstringUntilLast(".")}";
 			WindowState = WindowState.Minimized;

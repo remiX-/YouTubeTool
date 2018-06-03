@@ -75,7 +75,7 @@
 					<StackPanel>
 						<DockPanel Margin="16 16 8 16">
 							<!-- HamburgerMenu -->
-							<ToggleButton DockPanel.Dock="Left"  x:Name="MenuToggleButton" Style="{DynamicResource MaterialDesignHamburgerToggleButton}" />
+							<!--<ToggleButton DockPanel.Dock="Left"  x:Name="MenuToggleButton" Style="{DynamicResource MaterialDesignHamburgerToggleButton}" />-->
 
 							<!-- Popup box -->
 							<materialDesign:PopupBox DockPanel.Dock="Right"
@@ -83,7 +83,7 @@
 													 PlacementMode="LeftAndAlignTopEdges"
 													 StaysOpen="False">
 								<StackPanel MinWidth="200">
-									<TextBlock Margin="12" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="18" TextTrimming="CharacterEllipsis" Text="Bloo"/>
+									<TextBlock Margin="12" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="18" TextTrimming="CharacterEllipsis" Text="Help"/>
 									<Separator Margin="16,0" />
 									<MenuItem Header="Settings" ToolTip="Settings" Command="{Binding ShowSettingsCommand}">
 										<MenuItem.Icon>
