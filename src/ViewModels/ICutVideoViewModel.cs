@@ -11,16 +11,16 @@ namespace YouTubeTool.ViewModels
 	{
 		string InputFile { get; }
 		string OutputFile { get; }
+
+		bool TimeSlice { get; }
+		bool RemoveAudio { get; }
+
 		TimeSpan StartTime { get; }
 		TimeSpan EndTime { get; }
-		bool RemoveAudio { get; }
 
 		RelayCommand BrowseInputFileCommand { get; }
 		RelayCommand BrowseOutputFileCommand { get; }
 
 		RelayCommand GoCommand { get; }
-
-		// Window Events
-		RelayCommand ViewLoadedCommand { get; }
 	}
 }

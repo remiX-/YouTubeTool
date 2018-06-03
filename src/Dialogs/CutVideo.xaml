@@ -4,14 +4,15 @@
 			 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 			 xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
 			 xmlns:ctrls="clr-namespace:YouTubeTool.Core"
-			 Width="400"
+			 Width="600"
 			 DataContext="{Binding CutVideoViewModel, Source={StaticResource Locator}}">
-	<i:Interaction.Triggers>
-		<i:EventTrigger EventName="Loaded">
-			<i:InvokeCommandAction Command="{Binding ViewLoadedCommand}" />
-		</i:EventTrigger>
-	</i:Interaction.Triggers>
 	<StackPanel Margin="16">
+		<!--  Header  -->
+		<TextBlock Style="{StaticResource MaterialDesignDisplay1TextBlock}"
+				   Margin="0 0 0 12"
+				   Text="Video Slicer"
+				   HorizontalAlignment="Center" />
+
 		<!--  Input file -->
 		<DockPanel Margin="0 0 0 8">
 			<Button DockPanel.Dock="Right"
@@ -48,8 +49,26 @@
 					 IsReadOnly="True" />
 		</DockPanel>
 
-		<!--  Start/end times  -->
 		<UniformGrid Margin="0 0 0 8" Columns="2">
+			<!--  Time Slice  -->
+			<DockPanel LastChildFill="False" Margin="0 0 8 0">
+				<TextBlock DockPanel.Dock="Left"
+						   Text="Time Slice" />
+				<ToggleButton DockPanel.Dock="Right"
+							  IsChecked="{Binding TimeSlice}" />
+			</DockPanel>
+
+			<!--  Disable audio  -->
+			<DockPanel LastChildFill="False" Margin="0 0 8 0">
+				<TextBlock DockPanel.Dock="Left"
+						   Text="Remove Audio" />
+				<ToggleButton DockPanel.Dock="Right"
+							  IsChecked="{Binding RemoveAudio}" />
+			</DockPanel>
+		</UniformGrid>
+
+		<!--  Start/end times  -->
+		<UniformGrid Margin="0 0 0 8" Columns="2" IsEnabled="{Binding TimeSlice}">
 			<DockPanel DockPanel.Dock="Left" Margin="0 0 12 0">
 				<ctrls:TimePickerControl DockPanel.Dock="Right" Value="{Binding StartTime}" />
 				<TextBlock Text="Start" />
@@ -61,27 +80,17 @@
 			</DockPanel>
 		</UniformGrid>
 
-		<UniformGrid Margin="0 0 0 8" Columns="2">
-			<!--  Disable audio  -->
-			<DockPanel LastChildFill="False" Margin="0 0 8 0">
-				<TextBlock DockPanel.Dock="Left"
-						   Text="Remove Audio" />
-				<ToggleButton DockPanel.Dock="Right"
-							  IsChecked="{Binding RemoveAudio}" />
-			</DockPanel>
-		</UniformGrid>
-
 		<DockPanel LastChildFill="False">
 			<!--  Save button  -->
 			<Button DockPanel.Dock="Left"
 					Style="{DynamicResource MaterialDesignFlatButton}"
-					Content="GO"
+					Content="Start"
 					Command="{Binding GoCommand}" />
 			
 			<!--  Save button  -->
 			<Button DockPanel.Dock="Right"
 					Style="{DynamicResource MaterialDesignFlatButton}"
-					Content="CANCEL"
+					Content="Close"
 					Command="{x:Static materialDesign:DialogHost.CloseDialogCommand}"
 					IsCancel="True"
 					IsDefault="True" />
