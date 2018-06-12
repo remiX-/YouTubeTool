@@ -383,10 +383,11 @@ namespace YouTubeTool.ViewModels
 			var currentIndex = 1;
 			foreach (var video in SearchList)
 			{
+				var mustContinue = await DownloadSongAsync(video, currentIndex);
+
+				if (!mustContinue && CancelTokenSource.IsCancellationRequested) break;
 				if (CancelTokenSource.IsCancellationRequested) break;
 
-				var mustContinue = await DownloadSongAsync(video, currentIndex);
-				if (!mustContinue) break;
 				currentIndex++;
 			}
 
