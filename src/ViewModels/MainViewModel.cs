@@ -81,6 +81,7 @@ namespace YouTubeTool.ViewModels
 			get => height;
 			set => Set(ref height, value);
 		}
+
 		public WindowState WindowState
 		{
 			get => windowState;
@@ -442,7 +443,8 @@ namespace YouTubeTool.ViewModels
 				Status = $"[{index} / {SearchList.Count}] Converting [{video.Title}]...";
 				Directory.CreateDirectory(_pathService.OutputDirectoryPath);
 				var outputFilePath = Path.Combine(_pathService.OutputDirectoryPath, $"{cleanTitle}.mp3");
-				await FfmpegCli.ExecuteAsync($"-i \"{streamFilePath}\" -q:a 0 -map a \"{outputFilePath}\" -y");
+				var args = $"-i \"{streamFilePath}\" -q:a 0 -map a \"{outputFilePath}\" -y";
+				await FfmpegCli.SetArguments(args).ExecuteAsync();
 
 				// Delete temp file
 				Status = "[{index} / {SearchList.Count}] Deleting temp file...";
@@ -515,7 +517,8 @@ namespace YouTubeTool.ViewModels
 				Status = "Combining...";
 				Directory.CreateDirectory(_pathService.OutputDirectoryPath);
 				var outputFilePath = Path.Combine(_pathService.OutputDirectoryPath, $"{cleanTitle}.mp4");
-				await FfmpegCli.ExecuteAsync($"-i \"{videoStreamFilePath}\" -i \"{audioStreamFilePath}\" -shortest \"{outputFilePath}\" -y");
+				var args = $"-i \"{videoStreamFilePath}\" -i \"{audioStreamFilePath}\" -shortest \"{outputFilePath}\" -y";
+				await FfmpegCli.SetArguments(args).ExecuteAsync();
 
 				// Delete temp files
 				Status = "Deleting temp files...";

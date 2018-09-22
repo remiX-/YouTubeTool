@@ -7,7 +7,6 @@ using System.IO;
 using System.Threading.Tasks;
 using Tyrrrz.Extensions;
 using YouTubeTool.Services;
-using YouTubeTool.Utils.Messages;
 using static System.Environment;
 using WinForms = System.Windows.Forms;
 
@@ -128,8 +127,8 @@ namespace YouTubeTool.ViewModels
 			// Process
 			Directory.CreateDirectory(_pathService.TempDirectoryPath);
 			Directory.CreateDirectory(_pathService.OutputDirectoryPath);
-			var result1 = await FfmpegCli.ExecuteAsync(argsInit);
-			var result2 = await FfmpegCli.ExecuteAsync(argsFinal);
+			var result1 = await FfmpegCli.SetArguments(argsInit).ExecuteAsync();
+			var result2 = await FfmpegCli.SetArguments(argsFinal).ExecuteAsync();
 
 			// Delete temp file
 			File.Delete(outputTempFilePath);
