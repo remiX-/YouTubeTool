@@ -18,7 +18,7 @@ namespace YouTubeTool.ViewModels
 		private readonly ISettingsService _settingsService;
 		private readonly IPathService _pathService;
 
-		private readonly Cli FfmpegCli = new Cli("ffmpeg.exe");
+		private readonly ICli FfmpegCli;
 
 		#region Fields
 		bool isBusy;
@@ -107,6 +107,10 @@ namespace YouTubeTool.ViewModels
 			BrowseOutputFileCommand = new RelayCommand(BrowseOutputFile);
 
 			GoCommand = new RelayCommand(Go, () => !IsBusy && InputFile.IsNotBlank() && File.Exists(InputFile) && OutputFile.IsNotBlank());
+
+			FfmpegCli = new Cli("ffmpeg.exe")
+			   .EnableExitCodeValidation(false)
+			   .EnableStandardErrorValidation(false);
 		}
 		#endregion
 
@@ -141,6 +145,7 @@ namespace YouTubeTool.ViewModels
 
 		#region Commands
 		private async void Go() => await ProcessVideo();
+
 
 		private void BrowseInputFile()
 		{
