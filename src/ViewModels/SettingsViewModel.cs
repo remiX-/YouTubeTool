@@ -1,7 +1,7 @@
 ﻿using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.CommandWpf;
 using System.IO;
-using Tyrrrz.Extensions;
+using YouTubeTool.Extensions;
 using YouTubeTool.Services;
 using WinForms = System.Windows.Forms;
 

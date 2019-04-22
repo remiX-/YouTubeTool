@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using Tyrrrz.Extensions;
+using YouTubeTool.Extensions;
 using YouTubeTool.Services;
 using static System.Environment;
 using WinForms = System.Windows.Forms;
@@ -146,25 +147,23 @@ namespace YouTubeTool.ViewModels
 		#region Commands
 		private async void Go() => await ProcessVideo();
 
-
 		private void BrowseInputFile()
 		{
 			WinForms.OpenFileDialog ofd = new WinForms.OpenFileDialog
 			{
 				Multiselect = false,
-				InitialDirectory = Path.GetDirectoryName(InputFile) ?? GetFolderPath(SpecialFolder.MyVideos)
+				InitialDirectory = InputFile.IsNotBlank() ? Path.GetDirectoryName(InputFile) : GetFolderPath(SpecialFolder.MyVideos)
 			};
 
 			var q = GetLogicalDrives();
 
-			if (ofd.ShowDialog() == WinForms.DialogResult.OK)
-			{
-				InputFile = ofd.FileName;
+			if (ofd.ShowDialog() != WinForms.DialogResult.OK) return;
 
-				if (!HasManuallySelectedOuput)
-				{
-					OutputFile = Path.Combine(_pathService.OutputDirectoryPath, Path.GetFileName(InputFile));
-				}
+			InputFile = ofd.FileName;
+
+			if (!HasManuallySelectedOuput)
+			{
+				OutputFile = Path.Combine(_pathService.OutputDirectoryPath, Path.GetFileName(InputFile));
 			}
 		}
 
@@ -218,8 +217,8 @@ namespace YouTubeTool.ViewModels
 
 			if (RemoveAudio) args.Add("-an");
 
-			args.Add("-r 30");
-			args.Add("-s 1280x720");
+			args.Add("-r 60");
+			args.Add("-s 1920x1080");
 			args.Add("-c:v libx264");
 			args.Add("-b:v 3M");
 			args.Add($"\"{output}\"");

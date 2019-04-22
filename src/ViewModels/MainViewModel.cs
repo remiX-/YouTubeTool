@@ -18,6 +18,7 @@ using YouTubeTool.Core;
 using YouTubeTool.Dialogs;
 using YouTubeTool.Services;
 using YouTubeTool.Utils.Messages;
+using YouTubeTool.Extensions;
 
 namespace YouTubeTool.ViewModels
 {
