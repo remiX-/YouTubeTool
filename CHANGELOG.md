@@ -1,3 +1,7 @@
+### v2.0.0 (14 March 2020)
+- Update nuget packages
+- Refactor and fix code accordingly
+
 ### v1.3.1 (03 June 2018)
 - Fix some bugs with video slicing tool
 - Fix some other things

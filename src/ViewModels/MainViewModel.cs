@@ -32,7 +32,7 @@ namespace YouTubeTool.ViewModels
 		private readonly IUpdateService _updateService;
 		private readonly ILoggerService _loggerService;
 
-		private readonly Cli FfmpegCli = new Cli("ffmpeg.exe");
+		private readonly Command _ffmpegCli;
 
 		public HamburgerMenuItem[] AppMenu { get; }
 
@@ -220,10 +220,10 @@ namespace YouTubeTool.ViewModels
 		public RelayCommand ViewClosedCommand { get; }
 		#endregion
 
-		private CancellationTokenSource CancelTokenSource;
-		private CancellationToken CancelToken;
+		private CancellationTokenSource _cancelTokenSource;
+		private CancellationToken _cancelToken;
 
-		private readonly Progress<double> AppProgressHandler;
+		private readonly Progress<double> _appProgressHandler;
 		#endregion
 
 		#region Window Events
@@ -251,14 +251,14 @@ namespace YouTubeTool.ViewModels
 			// YouTubeExplode init
 			_client = new YoutubeClient();
 
-			AppProgressHandler = new Progress<double>(p => Progress = p);
+			_appProgressHandler = new Progress<double>(p => Progress = p);
 
 			// Core Commands
 			GetDataCommand = new RelayCommand(GetData, () => !IsBusy && Query.IsNotBlank());
 
 			DownloadAllCommand = new RelayCommand(DownloadAll, () => !IsBusy);
-			DownloadSongCommand = new RelayCommand<Video>(o => DownloadSong(o), _ => !IsBusy);
-			DownloadVideoCommand = new RelayCommand<Video>(o => DownloadVideo(o), _ => !IsBusy);
+			DownloadSongCommand = new RelayCommand<Video>(DownloadSong, _ => !IsBusy);
+			DownloadVideoCommand = new RelayCommand<Video>(DownloadVideo, _ => !IsBusy);
 
 			DownloadMediaStreamCommand = new RelayCommand<MediaStreamInfo>(DownloadMediaStream, _ => !IsBusy);
 
@@ -270,11 +270,13 @@ namespace YouTubeTool.ViewModels
 			ShowCutVideoCommand = new RelayCommand(ShowCutVideo);
 
 			// ListBox Events
-			SelectionChangedCommand = new RelayCommand<Video>(o => SelectionChanged(o), _ => !IsBusy);
+			SelectionChangedCommand = new RelayCommand<Video>(SelectionChanged, _ => !IsBusy);
 
 			// Window Events
 			ViewLoadedCommand = new RelayCommand(ViewLoaded);
 			ViewClosedCommand = new RelayCommand(ViewClosed);
+
+			_ffmpegCli = Cli.Wrap("ffmpeg.exe");
 		}
 
 		private async void ViewLoaded()
@@ -387,8 +389,8 @@ namespace YouTubeTool.ViewModels
 			{
 				var mustContinue = await DownloadSongAsync(video, currentIndex);
 
-				if (!mustContinue && CancelTokenSource.IsCancellationRequested) break;
-				if (CancelTokenSource.IsCancellationRequested) break;
+				if (!mustContinue && _cancelTokenSource.IsCancellationRequested) break;
+				if (_cancelTokenSource.IsCancellationRequested) break;
 
 				currentIndex++;
 			}
@@ -436,7 +438,7 @@ namespace YouTubeTool.ViewModels
 				Directory.CreateDirectory(_pathService.TempDirectoryPath);
 				var streamFileExt = streamInfo.Container.GetFileExtension();
 				var streamFilePath = Path.Combine(_pathService.TempDirectoryPath, $"{Guid.NewGuid()}.{streamFileExt}");
-				await _client.DownloadMediaStreamAsync(streamInfo, streamFilePath, AppProgressHandler, CancelToken);
+				await _client.DownloadMediaStreamAsync(streamInfo, streamFilePath, _appProgressHandler, _cancelToken);
 
 				IsProgressIndeterminate = true;
 
@@ -445,7 +447,7 @@ namespace YouTubeTool.ViewModels
 				Directory.CreateDirectory(_pathService.OutputDirectoryPath);
 				var outputFilePath = Path.Combine(_pathService.OutputDirectoryPath, $"{cleanTitle}.mp3");
 				var args = $"-i \"{streamFilePath}\" -q:a 0 -map a \"{outputFilePath}\" -y";
-				await FfmpegCli.SetArguments(args).ExecuteAsync();
+				await _ffmpegCli.WithArguments(args).ExecuteAsync();
 
 				// Delete temp file
 				Status = "[{index} / {SearchList.Count}] Deleting temp file...";
@@ -504,13 +506,13 @@ namespace YouTubeTool.ViewModels
 				Directory.CreateDirectory(_pathService.TempDirectoryPath);
 				var videoStreamFileExt = videoStreamInfo.Container.GetFileExtension();
 				var videoStreamFilePath = Path.Combine(_pathService.TempDirectoryPath, $"VID-{Guid.NewGuid()}.{videoStreamFileExt}");
-				await _client.DownloadMediaStreamAsync(videoStreamInfo, videoStreamFilePath, AppProgressHandler);
+				await _client.DownloadMediaStreamAsync(videoStreamInfo, videoStreamFilePath, _appProgressHandler);
 
 				Progress = 0;
 
 				var audioStreamFileExt = audioStreamInfo.Container.GetFileExtension();
 				var audioStreamFilePath = Path.Combine(_pathService.TempDirectoryPath, $"AUD-{Guid.NewGuid()}.{audioStreamFileExt}");
-				await _client.DownloadMediaStreamAsync(audioStreamInfo, audioStreamFilePath, AppProgressHandler);
+				await _client.DownloadMediaStreamAsync(audioStreamInfo, audioStreamFilePath, _appProgressHandler);
 
 				IsProgressIndeterminate = true;
 
@@ -519,7 +521,7 @@ namespace YouTubeTool.ViewModels
 				Directory.CreateDirectory(_pathService.OutputDirectoryPath);
 				var outputFilePath = Path.Combine(_pathService.OutputDirectoryPath, $"{cleanTitle}.mp4");
 				var args = $"-i \"{videoStreamFilePath}\" -i \"{audioStreamFilePath}\" -shortest \"{outputFilePath}\" -y";
-				await FfmpegCli.SetArguments(args).ExecuteAsync();
+				await _ffmpegCli.WithArguments(args).ExecuteAsync();
 
 				// Delete temp files
 				Status = "Deleting temp files...";
@@ -544,7 +546,7 @@ namespace YouTubeTool.ViewModels
 			var outputFilePath = Path.Combine(_pathService.OutputDirectoryPath, defaultFileName);
 
 			// Download to file
-			await _client.DownloadMediaStreamAsync(info, outputFilePath, AppProgressHandler);
+			await _client.DownloadMediaStreamAsync(info, outputFilePath, _appProgressHandler);
 
 			AppReadyState();
 		}
@@ -561,7 +563,7 @@ namespace YouTubeTool.ViewModels
 
 		private async void DownloadMediaStream(MediaStreamInfo info) => await DownloadMediaStreamAsync(info);
 
-		private void CancelCurrentTask() => CancelTokenSource.Cancel();
+		private void CancelCurrentTask() => _cancelTokenSource.Cancel();
 
 		private async void ShowSettings() => await DialogHost.Show(new SettingsDialog(), "RootDialog");
 
@@ -587,13 +589,13 @@ namespace YouTubeTool.ViewModels
 			IsProgressIndeterminate = progressIndeterminate;
 			Progress = 0;
 
-			CancelTokenSource = new CancellationTokenSource();
-			CancelToken = CancelTokenSource.Token;
+			_cancelTokenSource = new CancellationTokenSource();
+			_cancelToken = _cancelTokenSource.Token;
 		}
 
 		private void AppReadyState()
 		{
-			CancelTokenSource.Dispose();
+			_cancelTokenSource.Dispose();
 
 			Status = "Ready";
 

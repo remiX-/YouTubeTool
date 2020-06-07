@@ -7,7 +7,7 @@
 			 DataContext="{Binding CutVideoViewModel, Source={StaticResource Locator}}">
 	<StackPanel Margin="16">
 		<!--  Header  -->
-		<TextBlock Style="{StaticResource MaterialDesignDisplay1TextBlock}"
+		<TextBlock Style="{StaticResource MaterialDesignHeadline4TextBlock}"
 				   Margin="0 0 0 12"
 				   Text="Video Slicer"
 				   HorizontalAlignment="Center" />

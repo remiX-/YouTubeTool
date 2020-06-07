@@ -19,7 +19,7 @@ namespace YouTubeTool.ViewModels
 		private readonly ISettingsService _settingsService;
 		private readonly IPathService _pathService;
 
-		private readonly ICli FfmpegCli;
+		private readonly Command _ffmpegCli;
 
 		#region Fields
 		bool isBusy;
@@ -109,9 +109,8 @@ namespace YouTubeTool.ViewModels
 
 			GoCommand = new RelayCommand(Go, () => !IsBusy && InputFile.IsNotBlank() && File.Exists(InputFile) && OutputFile.IsNotBlank());
 
-			FfmpegCli = new Cli("ffmpeg.exe")
-			   .EnableExitCodeValidation(false)
-			   .EnableStandardErrorValidation(false);
+			_ffmpegCli = Cli.Wrap("ffmpeg.exe")
+				.WithValidation(CommandResultValidation.None);
 		}
 		#endregion
 
@@ -132,16 +131,16 @@ namespace YouTubeTool.ViewModels
 			// Process
 			Directory.CreateDirectory(_pathService.TempDirectoryPath);
 			Directory.CreateDirectory(_pathService.OutputDirectoryPath);
-			var result1 = await FfmpegCli.SetArguments(argsInit).ExecuteAsync();
-			var result2 = await FfmpegCli.SetArguments(argsFinal).ExecuteAsync();
+			var result1 = await _ffmpegCli.WithArguments(argsInit).ExecuteAsync();
+			var result2 = await _ffmpegCli.WithArguments(argsFinal).ExecuteAsync();
 
 			// Delete temp file
 			File.Delete(outputTempFilePath);
 
 			IsBusy = false;
 
-			InputFile = String.Empty;
-			OutputFile = String.Empty;
+			InputFile = string.Empty;
+			OutputFile = string.Empty;
 		}
 
 		#region Commands
@@ -155,11 +154,11 @@ namespace YouTubeTool.ViewModels
 				InitialDirectory = InputFile.IsNotBlank() ? Path.GetDirectoryName(InputFile) : GetFolderPath(SpecialFolder.MyVideos)
 			};
 
-			var q = GetLogicalDrives();
-
 			if (ofd.ShowDialog() != WinForms.DialogResult.OK) return;
 
 			InputFile = ofd.FileName;
+
+			if (InputFile == null) throw new NullReferenceException(nameof(InputFile));
 
 			if (!HasManuallySelectedOuput)
 			{
