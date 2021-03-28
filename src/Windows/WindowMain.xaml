@@ -5,7 +5,7 @@
 		xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 		xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-		xmlns:explodeModels="clr-namespace:YoutubeExplode.Models;assembly=YoutubeExplode"
+		xmlns:yteVideos="clr-namespace:YoutubeExplode.Videos;assembly=YoutubeExplode"
 		xmlns:viewModels="clr-namespace:YouTubeTool.ViewModels"
 		xmlns:views="clr-namespace:YouTubeTool.Views"
 		DataContext="{Binding MainViewModel, Source={StaticResource Locator}}"
@@ -190,7 +190,7 @@
 									</i:EventTrigger>
 								</i:Interaction.Triggers>
 								<ListBox.ItemTemplate>
-									<DataTemplate DataType="explodeModels:Video">
+									<DataTemplate DataType="yteVideos:Video">
 										<StackPanel Orientation="Horizontal">
 											<Rectangle Grid.Column="0"
 													   Width="6"

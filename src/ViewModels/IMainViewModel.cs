@@ -1,8 +1,11 @@
 ﻿using GalaSoft.MvvmLight.CommandWpf;
 using System.Collections.Generic;
 using System.Windows;
-using YoutubeExplode.Models;
-using YoutubeExplode.Models.MediaStreams;
+using YoutubeExplode;
+using YoutubeExplode.Common;
+using YoutubeExplode.Videos;
+using YoutubeExplode.Search;
+using YoutubeExplode.Playlists;
 
 namespace YouTubeTool.ViewModels
 {

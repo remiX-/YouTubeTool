@@ -12,8 +12,10 @@ using System.Threading.Tasks;
 using System.Windows;
 using Tyrrrz.Extensions;
 using YoutubeExplode;
-using YoutubeExplode.Models;
-using YoutubeExplode.Models.MediaStreams;
+using YoutubeExplode.Common;
+using YoutubeExplode.Videos;
+using YoutubeExplode.Search;
+using YoutubeExplode.Playlists;
 using YouTubeTool.Core;
 using YouTubeTool.Dialogs;
 using YouTubeTool.Services;
@@ -176,6 +178,7 @@ namespace YouTubeTool.ViewModels
 			get => _mediaStreamInfos;
 			private set
 			{
+				YoutubeExplode.Videos.Streams.Med
 				Set(ref _mediaStreamInfos, value);
 				RaisePropertyChanged(() => IsMediaStreamDataAvailable);
 			}
